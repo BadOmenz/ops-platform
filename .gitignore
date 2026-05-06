@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+backend/.venv/
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# Environment
+.env
+.env.*
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
