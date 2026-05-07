@@ -6,6 +6,7 @@ from app.core.settings import get_settings
 from app.domains.identity.router import router as identity_router
 from app.domains.organizations.router import router as organizations_router
 from app.domains.tenancy.router import router as tenancy_router
+from app.domains.vendors.router import router as vendors_router
 
 
 def create_app() -> FastAPI:
@@ -24,6 +25,7 @@ def create_app() -> FastAPI:
     app.include_router(identity_router)
     app.include_router(tenancy_router)
     app.include_router(organizations_router)
+    app.include_router(vendors_router)
     return app
 
 

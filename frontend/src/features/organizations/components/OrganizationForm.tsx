@@ -15,16 +15,18 @@ export function OrganizationForm({ organizationTypes, onCreate }: OrganizationFo
   const [website, setWebsite] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedTypeId, setSelectedTypeId] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const selectedOrganizationTypeId = selectedTypeId || organizationTypes[0]?.id || "";
 
   const canCreate = useMemo(() => displayName.trim().length > 0, [displayName]);
 
   const handleCreate = () => {
-    if (!canCreate) {
+    if (!canCreate || isSaving) {
       return;
     }
 
+    setIsSaving(true);
     onCreate({
       display_name: displayName,
       legal_name: legalName || null,
@@ -40,7 +42,7 @@ export function OrganizationForm({ organizationTypes, onCreate }: OrganizationFo
       setMainEmail("");
       setWebsite("");
       setNotes("");
-    });
+    }).finally(() => setIsSaving(false));
   };
 
   return (
@@ -77,7 +79,7 @@ export function OrganizationForm({ organizationTypes, onCreate }: OrganizationFo
         ))}
       </select>
       <input value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Notes" />
-      <button type="button" onClick={handleCreate} disabled={!canCreate}>
+      <button type="button" onClick={handleCreate} disabled={!canCreate || isSaving}>
         Add
       </button>
     </div>

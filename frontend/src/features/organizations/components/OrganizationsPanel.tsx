@@ -5,6 +5,7 @@ import { OrganizationForm } from "./OrganizationForm";
 import { OrganizationTable } from "./OrganizationTable";
 import { useOrganizations } from "../hooks/useOrganizations";
 import type { OrganizationStatusFilter } from "../types";
+import { VendorWorkspace } from "../../vendors/components/VendorWorkspace";
 
 type OrganizationsPanelProps = {
   tenantId: string;
@@ -12,12 +13,35 @@ type OrganizationsPanelProps = {
 
 export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
   const organizations = useOrganizations(tenantId);
-  const [view, setView] = useState<"list" | "editor">("list");
+  const [view, setView] = useState<"list" | "editor" | "vendor">("list");
+  const [selectedVendorPublicId, setSelectedVendorPublicId] = useState("");
 
   const openOrganization = (organizationId: string) => {
     organizations.setSelectedOrganizationId(organizationId);
     setView("editor");
   };
+
+  const openVendor = (vendorPublicId: string) => {
+    setSelectedVendorPublicId(vendorPublicId);
+    setView("vendor");
+  };
+
+  const backToOrganization = (organizationId: string) => {
+    organizations.setSelectedOrganizationId(organizationId);
+    setView("editor");
+  };
+
+  if (view === "vendor" && selectedVendorPublicId) {
+    return (
+      <section className="panel feature-panel" aria-label="Vendor workspace">
+        <VendorWorkspace
+          tenantId={tenantId}
+          vendorPublicId={selectedVendorPublicId}
+          onBackToOrganization={backToOrganization}
+        />
+      </section>
+    );
+  }
 
   if (view === "editor") {
     return (
@@ -35,11 +59,11 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
         {organizations.errorMessage && <div className="error-banner">{organizations.errorMessage}</div>}
 
         <OrganizationEditor
+          tenantId={tenantId}
           organization={organizations.selectedOrganization}
           organizationTypes={organizations.organizationTypes}
-          onSave={(organizationId, payload) =>
-            organizations.saveOrganization(organizationId, payload).then(() => setView("list"))
-          }
+          onOpenVendor={openVendor}
+          onSave={organizations.saveOrganization}
           onToggleActive={organizations.toggleOrganizationActive}
         />
       </section>
@@ -52,22 +76,6 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
         <div>
           <p className="eyebrow">Reference domain</p>
           <h2>Organizations</h2>
-        </div>
-        <div className="panel-actions">
-          <button type="button" onClick={organizations.refreshOrganizations}>
-            Refresh
-          </button>
-          <button type="button" onClick={organizations.clearFilters}>
-            Clear Filters
-          </button>
-          <select
-            value={organizations.status}
-            onChange={(event) => organizations.setStatus(event.target.value as OrganizationStatusFilter)}
-          >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="all">All</option>
-          </select>
         </div>
       </div>
 
@@ -85,12 +93,16 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
         organizations={organizations.visibleOrganizations}
         sortDirection={organizations.sortDirection}
         sortField={organizations.sortField}
+        status={organizations.status}
         typeFilter={organizations.typeFilter}
+        onClearFilters={organizations.clearFilters}
         onContactFilterChange={organizations.setContactFilter}
         onDisplayNameFilterChange={organizations.setDisplayNameFilter}
         onNotesFilterChange={organizations.setNotesFilter}
         onOpenOrganization={openOrganization}
+        onRefresh={organizations.refreshOrganizations}
         onSort={organizations.handleSort}
+        onStatusChange={organizations.setStatus}
         onTypeFilterChange={organizations.setTypeFilter}
       />
     </section>

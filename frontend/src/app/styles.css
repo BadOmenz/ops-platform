@@ -76,6 +76,10 @@ input {
   font: inherit;
 }
 
+.input-error {
+  border-color: var(--danger-border);
+}
+
 .app-shell {
   --app-bg: #f6f7f9;
   --surface: #ffffff;
@@ -169,6 +173,12 @@ input {
   color: var(--text);
 }
 
+.secondary-button {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -178,6 +188,11 @@ input {
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
+}
+
+.field-error {
+  color: var(--danger-text);
+  font-size: 12px;
 }
 
 .eyebrow {
@@ -228,11 +243,25 @@ h2 {
   gap: 10px;
 }
 
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
 .organization-form {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(130px, 0.8fr) auto;
   gap: 10px;
   margin-bottom: 64px;
+}
+
+.vendor-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr)) auto;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
 .organizations-layout {
@@ -246,6 +275,44 @@ h2 {
   padding-top: 18px;
 }
 
+.vendor-role-card {
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding-top: 18px;
+}
+
+.vendor-profile,
+.vendor-products-placeholder {
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.role-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.role-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.role-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.role-status-filter {
+  min-width: 190px;
+}
+
+.role-selector {
+  margin-bottom: 14px;
+}
+
 .organization-editor h3 {
   margin: 0;
 }
@@ -254,6 +321,12 @@ h2 {
   display: grid;
   gap: 12px;
   margin-bottom: 14px;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
 }
 
 .checkbox-group {
@@ -282,6 +355,15 @@ h2 {
   border-radius: 6px;
   background: var(--danger-bg);
   color: var(--danger-text);
+  margin-bottom: 14px;
+  padding: 10px 12px;
+}
+
+.success-banner {
+  border: 1px solid #7abf91;
+  border-radius: 6px;
+  background: #eefaf1;
+  color: #1f6b3a;
   margin-bottom: 14px;
   padding: 10px 12px;
 }
@@ -396,12 +478,14 @@ dd {
   }
 
   .panel-header,
-  .panel-actions {
+  .panel-actions,
+  .table-toolbar {
     align-items: stretch;
     flex-direction: column;
   }
 
   .organization-form,
+  .vendor-form,
   .organizations-layout {
     grid-template-columns: 1fr;
   }
