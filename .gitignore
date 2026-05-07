@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 backend/.venv/
+backend/venv/
 
 # Node / Vite
 frontend/node_modules/
@@ -24,6 +25,6 @@ logs/
 # OS / editor
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
-
