@@ -2,7 +2,7 @@
 
 This is the required template for every substantial business domain in Project05.
 
-Organizations will be the first full implementation. Future domains should follow the same shape unless there is a documented reason to deviate.
+Organizations are the first reference implementation. Vendors are the first role-extension implementation. Future domains should follow the same shape unless there is a documented reason to deviate.
 
 ## Backend Domain Shape
 
@@ -20,7 +20,7 @@ backend/app/domains/<domain>/
 
 ### `models.py`
 
-Owns SQLAlchemy table definitions and relationships.
+Owns SQLAlchemy table definitions.
 
 Rules:
 
@@ -29,6 +29,7 @@ Rules:
 - tenant-owned tables include `tenant_id`
 - core SaaS entities use UUID identifiers
 - mutable tables include audit fields according to the audit standard
+- use separate `public_id` only when a domain needs a distinct external identifier
 
 ### `schemas.py`
 
@@ -52,6 +53,7 @@ Rules:
 - no HTTP exceptions
 - no route/request knowledge
 - no business orchestration
+- use raw SQL only when it is clearer than SQLAlchemy model/expression code
 
 ### `service.py`
 
@@ -237,3 +239,6 @@ Current completed pieces:
 - frontend organizations panel compiles against Project05 contracts
 - frontend organization workflows are split across hook, form, table, and editor components
 - app shell supports a persisted light/dark theme toggle through CSS variables
+- vendors role domain exists as a role-specific extension of organizations
+- vendor routes use `public_id` for vendor-specific access
+- local Docker Compose runs db, backend, and frontend

@@ -118,7 +118,7 @@ export function OrganizationEditor({
           <h3>Editor</h3>
         </div>
         <button type="button" onClick={() => onToggleActive(organization)}>
-          {organization.is_active ? "Deactivate" : "Reactivate"}
+          {organization.is_active ? "Deactivate this organization" : "Reactivate this organization"}
         </button>
       </div>
 

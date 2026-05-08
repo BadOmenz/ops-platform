@@ -1,5 +1,7 @@
 # Project04 to Project05 Port Plan
 
+> Historical note: this checklist records the porting plan from Project04 into Project05. It is no longer the authoritative project standard. Use `docs/project_bible.md`, `docs/architecture.md`, `docs/engineering_standards.md`, and `docs/deployment_ci_cd_readiness.md` for current guidance.
+
 This is the working checklist for rebuilding `project04_foodservice_ops` into `project05_ops_platform`.
 
 The goal is not to copy project04 file-for-file. The goal is to preserve the proven business behavior while moving it into a cleaner Azure-ready architecture.

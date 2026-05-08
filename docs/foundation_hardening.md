@@ -1,5 +1,7 @@
 # Foundation Hardening
 
+> Historical note: this document records the foundation-hardening phase from May 2026. Current authoritative standards live in `docs/project_bible.md`, `docs/architecture.md`, `docs/engineering_standards.md`, and `docs/ui_foundation.md`.
+
 This document defines the rules to freeze before porting the organizations module from project04.
 
 Organizations will become the reference implementation for future domains, so the platform skeleton needs to be stable first.

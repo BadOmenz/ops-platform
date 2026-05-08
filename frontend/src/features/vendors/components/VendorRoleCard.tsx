@@ -47,6 +47,9 @@ export function VendorRoleCard({
   }, [activeVendor, inactiveVendor, roleStatusFilter]);
   const vendor = visibleVendors[0] || null;
   const canAssignRole = roleStatusFilter === "active" && activeVendor === null;
+  const roleSummary = vendor
+    ? `${vendor.is_active ? "Active" : "Inactive"} roles: Vendor`
+    : getEmptyRoleMessage(roleStatusFilter);
 
   useEffect(() => {
     let isMounted = true;
@@ -117,21 +120,22 @@ export function VendorRoleCard({
 
   return (
     <section className="vendor-role-card" aria-label="Organization role">
-      <div className="panel-header">
-        <div>
-          <p className="eyebrow">{vendor ? "Vendor Role" : "Role"}</p>
-          <div className="role-status-row">
-            <h3>{vendor ? `Vendor role: ${vendor.is_active ? "Active" : "Inactive"}` : getEmptyRoleMessage(roleStatusFilter)}</h3>
-            <select
-              className="role-status-filter"
-              value={roleStatusFilter}
-              onChange={(event) => setRoleStatusFilter(event.target.value as RoleStatusFilter)}
-            >
-              <option value="active">Show active roles</option>
-              <option value="inactive">Show inactive roles</option>
-              <option value="all">Show all roles</option>
-            </select>
-          </div>
+      <div className="role-section-header">
+        <p className="eyebrow">Roles</p>
+        <label className="field role-view-field">
+          <span>Role view</span>
+          <select
+            className="role-status-filter"
+            value={roleStatusFilter}
+            onChange={(event) => setRoleStatusFilter(event.target.value as RoleStatusFilter)}
+          >
+            <option value="active">Show active roles</option>
+            <option value="inactive">Show inactive roles</option>
+            <option value="all">Show all roles</option>
+          </select>
+        </label>
+        <div className="role-summary-row">
+          <h3>{roleSummary}</h3>
         </div>
       </div>
 
@@ -171,7 +175,7 @@ export function VendorRoleCard({
             type="button"
             onClick={handleToggleActive}
           >
-            {vendor.is_active ? "Deactivate" : "Reactivate"}
+            {vendor.is_active ? "Deactivate this role" : "Reactivate this role"}
           </button>
         </div>
       )}

@@ -1,5 +1,7 @@
 # UI Parity: Project04 to Project05
 
+> Historical note: this document tracks the Project04-to-Project05 UI port. Current frontend UI standards live in `docs/ui_foundation.md`.
+
 This document tracks UI/UX parity between the original `project04_foodservice_ops` organization experience and the rebuilt `project05_ops_platform` organization feature.
 
 The goal is not pixel-perfect copying. The goal is to preserve useful behavior, improve weak patterns, and avoid reintroducing large, hard-to-edit frontend files.

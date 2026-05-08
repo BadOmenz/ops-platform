@@ -1,88 +1,134 @@
 # Architecture
 
-## Goal
+This document describes the current architecture of `project05_ops_platform`. It is authoritative for current implementation decisions. Historical Project04 porting notes are not standards.
 
-Build a large, maintainable, multi-tenant operations platform where tables, pages, and workflows can grow without turning the codebase into a flat collection of route files and components.
+## Current Stack
+
+- Frontend: React, TypeScript, Vite
+- Backend: FastAPI, Pydantic, SQLAlchemy 2, Alembic
+- Database: PostgreSQL
+- Local runtime: Docker Compose
+- Authentication state: dev-auth boundary with Entra ID settings represented through environment variables
 
 ## Backend Shape
 
-The backend is organized around domains:
+The backend is API-first and domain-oriented.
 
 ```text
 backend/app/
-  api/              HTTP routing and dependency composition
-  core/             settings, security, app-wide configuration
-  db/               engine/session/base metadata
+  api/              app-level HTTP routes such as health
+  core/             settings, auth, tenant context
+  db/               SQLAlchemy base, engine, sessions
   domains/
-    tenancy/        tenants, memberships, tenant context
-    identity/       authenticated users and external identity mapping
-    <future>/       inventory, vendors, production, purchasing, etc.
+    identity/       users and external identity mapping
+    tenancy/        tenants and memberships
+    organizations/  neutral organization identity layer
+    vendors/        vendor role extension
   shared/           cross-domain primitives only
 ```
 
-Each domain should use this internal pattern as it grows:
+Each business domain follows:
 
 ```text
-domains/<domain>/
-  models.py         SQLAlchemy tables
+backend/app/domains/<domain>/
+  models.py         SQLAlchemy table models
   schemas.py        Pydantic request/response contracts
-  repository.py     database queries
-  service.py        business rules and orchestration
-  router.py         HTTP endpoints for this domain
+  repository.py     database reads/writes
+  service.py        validation, business rules, orchestration
+  router.py         HTTP transport
 ```
 
-Routes should stay thin. They validate transport concerns, call services, and return schemas. They should not become the place where business rules accumulate.
+Routes stay thin. They compose dependencies, call services, and return schema-shaped responses. Business rules belong in services. Database access belongs in repositories.
 
-## Multi-Tenant Boundary
+## Database Access Philosophy
 
-Tenancy is a platform concern, not a feature bolted onto each page later.
+The current codebase uses SQLAlchemy models and explicit repository methods. The standard is not "hide the database behind magic"; it is explicit, inspectable data access.
 
-The first version uses:
+Rules:
 
-- `tenants`: customer/business account boundary
-- `users`: authenticated person
-- `tenant_memberships`: which users can access which tenants
+- Keep queries in repositories.
+- Prefer straightforward SQLAlchemy statements and model operations.
+- Use raw SQL in migrations or complex query cases when it is clearer than ORM expression code.
+- Do not put database queries directly in routers or frontend-facing code.
+- Review generated migrations before committing them.
 
-Future tenant-owned tables should include a `tenant_id` foreign key unless the table is truly global lookup/reference data.
+## Tenancy
 
-## Current Business Foundation
+Tenancy is a platform primitive.
 
-Organizations are the first reference business domain.
+- `tenants` defines the tenant boundary.
+- `users` defines the internal authenticated user.
+- `tenant_memberships` authorizes users for tenants.
+- Tenant-owned tables include `tenant_id`.
+- Tenant-owned routes depend on `require_tenant_context`.
+- Repository methods for tenant-owned records receive tenant identifiers explicitly.
 
-Current organization boundaries:
+## Current Business Domains
 
-- `organizations` is a tenant-owned neutral identity table.
-- `organization_types` is a global lookup for broad identity classifications.
-- `organization_type_assignments` links organizations to those classifications.
-- direct organization contact fields are `main_phone`, `main_email`, and `website`.
-- generic organization detail tables were removed to avoid a catch-all abstraction.
+Organizations:
 
-Future supplier/vendor, customer, carrier, instructor, and richer contact behavior should be built as deliberate domains that reference `organizations`, not as extra generic organization fields.
+- neutral tenant-owned identity/entity records
+- direct identity contact fields: `main_phone`, `main_email`, `website`
+- broad identity classifications through `organization_types`
+- soft delete/reactivation through `is_active`
+
+Vendors:
+
+- first role-specific extension domain
+- references an organization
+- uses `public_id` for vendor-specific API routes
+- supports active/inactive role state
+
+Do not move role-specific data back into `organizations`. Future customer, carrier, or contact behavior should be deliberate domains.
+
+## IDs and Public Identifiers
+
+- Core SaaS entities use UUID primary keys.
+- Tenant-owned data must not rely on sequential public IDs.
+- Vendor routes use `public_id` where the domain already separates internal and external identifiers.
+- Do not expose internal database implementation details unnecessarily.
+
+## Audit and Soft Delete
+
+Mutable tables generally include:
+
+- `created_at`
+- `updated_at`
+- `is_active` when deactivation/reactivation is part of the workflow
+
+Soft delete is preferred for business records that users may need to restore or audit.
 
 ## Frontend Shape
 
-The frontend is organized by app shell, features, and shared utilities:
-
 ```text
 frontend/src/
-  app/              routing, layout, providers
-  features/         feature modules by business capability
-  shared/api/       HTTP client and generated/client contracts
-  shared/ui/        reusable UI primitives
+  app/              app shell, global stylesheet, theme toggle
+  features/
+    auth/
+    tenancy/
+    organizations/
+    vendors/
+  shared/api/       API client and API config
 ```
 
-Feature folders should own their pages, components, hooks, and types until something is truly shared.
+Feature folders own their API calls, types, hooks, and components until reuse is proven. The app shell owns global theme behavior and layout.
 
-The app shell owns global presentation concerns such as the persisted light/dark theme toggle. Feature modules should consume shared CSS variables rather than defining independent theme systems.
+## Runtime Shape
 
-## Azure Shape
+Docker Compose services:
 
-Azure setup should follow the repo, not drive it. The first deployable milestone is:
+- `db`: PostgreSQL 16
+- `backend`: FastAPI
+- `frontend`: Vite dev server
 
-Deployment constraints should still be checked at each phase so local-only design decisions do not accumulate.
+The backend connects to PostgreSQL through Docker DNS as `db`, not `localhost`.
 
-- API exposes `/health`
-- frontend renders an app shell
-- database connection is configured
-- auth configuration is represented in env vars
-- CI can install, lint/build, and eventually deploy
+## Deployment Direction
+
+The next phase is CI/CD and first dev deployment. Expected Azure direction:
+
+- backend on Azure Container Apps or App Service
+- frontend on Static Web Apps or App Service
+- PostgreSQL on Azure Database for PostgreSQL
+- secrets in Key Vault or app settings, never source control
+- migrations run as an explicit deployment step
