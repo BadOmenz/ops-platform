@@ -1,20 +1,63 @@
 services:
-  postgres:
+  db:
     image: postgres:16
     environment:
-      POSTGRES_DB: ops_platform
-      POSTGRES_USER: ops_platform
-      POSTGRES_PASSWORD: ops_platform
+      POSTGRES_DB: ${POSTGRES_DB:-ops_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-ops_platform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ops_platform}
     ports:
-      - "5435:5432"
+      - "${POSTGRES_PORT:-5435}:5432"
     volumes:
       - ops_platform_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ops_platform -d ops_platform"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 12
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_NAME: ${APP_NAME:-Ops Platform API}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://ops_platform:ops_platform@db:5432/ops_platform}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-["http://localhost:5173","http://127.0.0.1:5173"]}
+      ENTRA_TENANT_ID: ${ENTRA_TENANT_ID:-}
+      ENTRA_CLIENT_ID: ${ENTRA_CLIENT_ID:-}
+      ENTRA_AUTHORITY: ${ENTRA_AUTHORITY:-}
+      DEV_AUTH_ENABLED: ${DEV_AUTH_ENABLED:-true}
+      DEV_AUTH_SUBJECT: ${DEV_AUTH_SUBJECT:-dev-user}
+      DEV_AUTH_EMAIL: ${DEV_AUTH_EMAIL:-dev.user@example.com}
+      DEV_AUTH_DISPLAY_NAME: ${DEV_AUTH_DISPLAY_NAME:-Dev User}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/alembic.ini:/app/alembic.ini
+      - ./backend/app:/app/app
+      - ./backend/migrations:/app/migrations
+      - ./backend/scripts:/app/scripts
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+      VITE_ENTRA_CLIENT_ID: ${VITE_ENTRA_CLIENT_ID:-}
+      VITE_ENTRA_AUTHORITY: ${VITE_ENTRA_AUTHORITY:-}
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/src:/app/src
+      - ./frontend/tsconfig.app.json:/app/tsconfig.app.json
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/vite.config.ts:/app/vite.config.ts
 
 volumes:
   ops_platform_pgdata:
-

@@ -95,6 +95,70 @@ Last updated: 2026-05-06
 
 ## Local Development
 
+### Docker Local Stack
+
+The full local stack can run from Docker Compose. This is the preferred path when you want Docker Desktop to show the project containers and keep the database, API, and Vite frontend together.
+
+From the project root:
+
+```powershell
+cd C:\dev\web_dev\project05_ops_platform
+docker compose up --build
+```
+
+Docker Compose starts:
+
+- `db`: PostgreSQL 16 with a persistent `ops_platform_pgdata` volume
+- `backend`: FastAPI on `http://localhost:8000`
+- `frontend`: Vite on `http://localhost:5173`
+
+The backend connects to Postgres through the Docker service name `db`, not `localhost`. The host machine can still reach Postgres on `localhost:5435` for local tools and the non-Docker backend workflow.
+
+Run migrations inside Docker:
+
+```powershell
+docker compose exec backend alembic upgrade head
+```
+
+Seed local demo/login data after migrations:
+
+```powershell
+docker compose exec backend python scripts/seed_dev_data.py
+```
+
+The seed command is idempotent. It creates the local dev user configured by `DEV_AUTH_*`, an active demo tenant, an admin membership for that user, and one demo organization. Re-run it any time after `docker compose down -v`, after recreating the database volume, or if the app has no tenant/data state.
+
+Useful Docker commands:
+
+```powershell
+docker compose ps
+docker compose logs backend
+docker compose logs frontend
+docker compose down
+docker compose down -v
+```
+
+Use `docker compose down -v` only when you intentionally want to delete the local PostgreSQL data volume.
+
+Verification:
+
+- Frontend: `http://localhost:5173`
+- Backend Swagger: `http://localhost:8000/docs`
+- Backend health: `http://localhost:8000/health`
+- Database readiness: `docker compose exec db pg_isready -U ops_platform -d ops_platform`
+
+Optional environment overrides can be provided through a root `.env` file or shell environment variables. The Docker defaults are local-development only.
+
+```powershell
+POSTGRES_PORT=5435
+BACKEND_PORT=8000
+FRONTEND_PORT=5173
+DATABASE_URL=postgresql+psycopg://ops_platform:ops_platform@db:5432/ops_platform
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+### Non-Docker App Workflow
+
 Backend:
 
 ```powershell
@@ -118,60 +182,49 @@ npm run dev
 
 ## Development Startup Sequence
 
-The local stack has three running parts: Docker PostgreSQL, the FastAPI backend, and the Vite frontend. Start them in that order so database-dependent startup, migrations, tenant lookup, and auth-related UI state all have a live database to talk to.
+The Docker local stack is the easiest way to run the app because Compose starts PostgreSQL, the FastAPI backend, and the Vite frontend on one shared network.
 
 ### 1. Prerequisites
 
 - Docker Desktop installed and running.
-- Python 3.11 installed and available through `py -3.11`.
-- Backend venv created at `backend\venv`.
-- Backend dependencies installed from `backend\requirements.txt`.
-- Frontend dependencies installed with `npm install` in `frontend`.
+- Python 3.11 and Node are only required for the non-Docker app workflow.
 
 ### 2. Daily Startup Sequence
 
-Run these from separate terminals where noted:
+```powershell
+cd C:\dev\web_dev\project05_ops_platform
+docker compose up --build
+```
+
+In a second terminal, run migrations and seed local data:
 
 ```powershell
 cd C:\dev\web_dev\project05_ops_platform
-docker compose up -d
-```
-
-Then start the backend:
-
-```powershell
-cd C:\dev\web_dev\project05_ops_platform\backend
-.\venv\Scripts\python.exe -m uvicorn app.main:app --reload
-```
-
-Then start the frontend:
-
-```powershell
-cd C:\dev\web_dev\project05_ops_platform\frontend
-npm run dev
+docker compose exec backend alembic upgrade head
+docker compose exec backend python scripts/seed_dev_data.py
 ```
 
 ### 3. Backend Startup Command
 
 ```powershell
-cd C:\dev\web_dev\project05_ops_platform\backend
-.\venv\Scripts\python.exe -m uvicorn app.main:app --reload
+docker compose up backend
 ```
 
 ### 4. Frontend Startup Command
 
 ```powershell
-cd C:\dev\web_dev\project05_ops_platform\frontend
-npm run dev
+docker compose up frontend
 ```
+
+For local non-Docker commands, use the `Non-Docker App Workflow` section above.
 
 ### 5. Common Failure Symptoms and Causes
 
-- Alembic commands hang: Docker Desktop or the PostgreSQL container is not running.
-- Tenant/auth UI appears broken: the backend cannot reach PostgreSQL, so tenant lookup cannot complete.
-- Backend database connections timeout: PostgreSQL is not reachable on the configured local port.
-- Pylance reports missing backend imports: VS Code is not using `backend\venv\Scripts\python.exe`.
-- Frontend loads but API data is missing: backend is not running, or backend is running without database access.
+- Backend database connections timeout: the `db` container is not healthy, or the backend is not using the Docker `DATABASE_URL`.
+- Tenant/auth UI appears empty or forbidden: migrations or `scripts/seed_dev_data.py` have not been run against the current database volume.
+- Frontend loads but API data is missing: the backend container is not running, or `VITE_API_BASE_URL` does not point to `http://localhost:8000`.
+- Alembic fails to connect: verify `docker compose ps` shows `db` as healthy.
+- Pylance reports missing backend imports: VS Code is not using `backend\venv\Scripts\python.exe` for the non-Docker workflow.
 
 ### 6. Quick Verification Commands
 
@@ -181,31 +234,35 @@ docker compose ps
 ```
 
 ```powershell
-cd C:\dev\web_dev\project05_ops_platform\backend
-.\venv\Scripts\python.exe -c "import fastapi, sqlalchemy, alembic, pydantic_settings; from app.main import app; print('backend import check ok')"
+docker compose exec db pg_isready -U ops_platform -d ops_platform
 ```
 
 ```powershell
-cd C:\dev\web_dev\project05_ops_platform\frontend
-npm run dev
+docker compose exec backend alembic current
+```
+
+```powershell
+Invoke-WebRequest -Uri http://localhost:8000/health -UseBasicParsing
 ```
 
 ### 7. Shutdown Sequence
-
-Stop the frontend and backend dev servers with `Ctrl+C` in their terminals.
-
-To stop the database container:
 
 ```powershell
 cd C:\dev\web_dev\project05_ops_platform
 docker compose down
 ```
 
-Use `docker compose down -v` only when you intentionally want to delete the local PostgreSQL data volume.
+Use `docker compose down -v` only when you intentionally want to delete the local PostgreSQL data volume. After deleting the volume, run migrations and seed again:
+
+```powershell
+docker compose up --build
+docker compose exec backend alembic upgrade head
+docker compose exec backend python scripts/seed_dev_data.py
+```
 
 ### 8. Why Docker Is Infrastructure
 
-Docker is not an optional helper for this project. It provides the local PostgreSQL infrastructure that the backend, Alembic migrations, tenant lookup, and auth-dependent UI paths expect to exist. The `infra/` folder is the future cloud infrastructure home, but during local development Docker is the infrastructure layer that makes the database repeatable.
+Docker provides the repeatable local infrastructure for PostgreSQL, the API, and the frontend. The `infra/` folder is the future cloud infrastructure home.
 
 ## Deployment Direction
 
