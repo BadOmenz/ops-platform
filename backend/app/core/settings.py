@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     dev_auth_subject: str = "dev-user"
     dev_auth_email: str = "dev.user@example.com"
     dev_auth_display_name: str = "Dev User"
+    demo_mode_enabled: bool = False
+    demo_session_ttl_hours: int = 24
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

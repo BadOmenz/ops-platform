@@ -17,6 +17,8 @@ export function useVendors(tenantId: string) {
       setVendors([]);
       return;
     }
+    setVendors([]);
+    setErrorMessage("");
     setLoadState("loading");
     getVendors(tenantId, status)
       .then((records) => {
@@ -24,6 +26,7 @@ export function useVendors(tenantId: string) {
         setLoadState("ready");
       })
       .catch(() => {
+        setVendors([]);
         setLoadState("error");
         setErrorMessage("Unable to load vendors.");
       });
@@ -34,9 +37,13 @@ export function useVendors(tenantId: string) {
       setOrganizations([]);
       return;
     }
+    setOrganizations([]);
     getOrganizations(tenantId, "active")
       .then(setOrganizations)
-      .catch(() => setErrorMessage("Unable to load organizations for vendor setup."));
+      .catch(() => {
+        setOrganizations([]);
+        setErrorMessage("Unable to load organizations for vendor setup.");
+      });
   };
 
   useEffect(() => {

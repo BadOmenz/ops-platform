@@ -42,6 +42,10 @@ export function VendorWorkspace({
     let isMounted = true;
 
     setLoadState("loading");
+    setVendor(null);
+    setSavedSnapshot(null);
+    setErrorMessage("");
+    setSuccessMessage("");
     getVendor(tenantId, vendorPublicId)
       .then((record) => {
         if (!isMounted) {
@@ -53,6 +57,8 @@ export function VendorWorkspace({
       })
       .catch(() => {
         if (isMounted) {
+          setVendor(null);
+          setSavedSnapshot(null);
           setLoadState("error");
           setErrorMessage("Unable to load vendor.");
         }

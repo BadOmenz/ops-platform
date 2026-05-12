@@ -207,6 +207,28 @@ textarea {
   gap: var(--space-4);
 }
 
+.demo-entry-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+  padding: var(--space-8);
+}
+
+.demo-entry {
+  width: min(520px, 100%);
+}
+
+.demo-entry-panel {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.demo-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
 /* Typography */
 .eyebrow {
   margin: 0 0 var(--space-1);
@@ -536,7 +558,8 @@ textarea::placeholder {
 }
 
 .error-banner,
-.success-banner {
+.success-banner,
+.demo-mode-banner {
   border-radius: var(--radius-md);
   margin-bottom: var(--space-5);
   padding: var(--space-4) var(--space-5);
@@ -554,6 +577,13 @@ textarea::placeholder {
   border: 1px solid var(--color-success-border);
   background: var(--color-success-bg);
   color: var(--color-success-text);
+}
+
+.demo-mode-banner {
+  max-width: 1180px;
+  border: 1px solid var(--color-primary-border);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
 }
 
 /* Tables */

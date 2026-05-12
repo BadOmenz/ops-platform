@@ -38,8 +38,12 @@ export function useOrganizations(tenantId: string) {
   const refreshOrganizations = () => {
     if (!tenantId) {
       setOrganizations([]);
+      setSelectedOrganizationId("");
       return;
     }
+    setOrganizations([]);
+    setSelectedOrganizationId("");
+    setErrorMessage("");
     setLoadState("loading");
     getOrganizations(tenantId, status)
       .then((records) => {
@@ -50,6 +54,8 @@ export function useOrganizations(tenantId: string) {
         setLoadState("ready");
       })
       .catch(() => {
+        setOrganizations([]);
+        setSelectedOrganizationId("");
         setLoadState("error");
         setErrorMessage("Unable to load organizations.");
       });
