@@ -1,0 +1,38 @@
+name: backend deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: log in to acr
+        run: |
+          az acr login --name opsplatformacr2026
+
+      - name: build docker image
+        run: |
+          docker build -t opsplatformacr2026.azurecr.io/ops-platform-backend:latest ./backend
+
+      - name: push docker image
+        run: |
+          docker push opsplatformacr2026.azurecr.io/ops-platform-backend:latest
+
+      - name: update app service container
+        run: |
+          az webapp config container set \
+            --name ops-platform-backend \
+            --resource-group project05-dev-rg \
+            --container-image-name opsplatformacr2026.azurecr.io/ops-platform-backend:latest
