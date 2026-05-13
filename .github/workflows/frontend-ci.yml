@@ -1,6 +1,6 @@
 name: frontend ci
 
-on:
+"on":
   push:
     branches:
       - master
@@ -9,6 +9,8 @@ on:
 jobs:
   frontend-ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     defaults:
       run:
@@ -16,10 +18,10 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: set up node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 

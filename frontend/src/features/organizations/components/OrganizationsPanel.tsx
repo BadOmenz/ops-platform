@@ -4,7 +4,6 @@ import { OrganizationEditor } from "./OrganizationEditor";
 import { OrganizationForm } from "./OrganizationForm";
 import { OrganizationTable } from "./OrganizationTable";
 import { useOrganizations } from "../hooks/useOrganizations";
-import type { OrganizationStatusFilter } from "../types";
 import { VendorWorkspace } from "../../vendors/components/VendorWorkspace";
 
 type OrganizationsPanelProps = {

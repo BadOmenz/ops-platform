@@ -38,6 +38,16 @@ export function VendorWorkspace({
   const [successMessage, setSuccessMessage] = useState("");
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
 
+  const applyVendor = (record: Vendor) => {
+    setVendorCode(record.vendor_code || "");
+    setAccountNumber(record.account_number || "");
+    setOrderingEmail(record.ordering_email || "");
+    setOrderingPhone(record.ordering_phone || "");
+    setWebsite(record.website || "");
+    setNotes(record.notes || "");
+    setSavedSnapshot(buildVendorSnapshot(record));
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -77,16 +87,6 @@ export function VendorWorkspace({
     const timeoutId = window.setTimeout(() => setSuccessMessage(""), 2500);
     return () => window.clearTimeout(timeoutId);
   }, [successMessage]);
-
-  const applyVendor = (record: Vendor) => {
-    setVendorCode(record.vendor_code || "");
-    setAccountNumber(record.account_number || "");
-    setOrderingEmail(record.ordering_email || "");
-    setOrderingPhone(record.ordering_phone || "");
-    setWebsite(record.website || "");
-    setNotes(record.notes || "");
-    setSavedSnapshot(buildVendorSnapshot(record));
-  };
 
   const handleSave = () => {
     if (!vendor) {
@@ -324,7 +324,7 @@ function validateVendorFields(snapshot: VendorSnapshot): VendorFieldErrors {
   }
   if (phone) {
     const digitCount = Array.from(phone).filter((character) => /\d/.test(character)).length;
-    if (digitCount < 7 || digitCount > 20 || !/^[0-9\s()+.\-]+$/.test(phone)) {
+    if (digitCount < 7 || digitCount > 20 || !/^[0-9\s()+.-]+$/.test(phone)) {
       errors.ordering_phone = "Ordering phone must be a valid phone number.";
     }
   }
@@ -371,7 +371,8 @@ function updateField(
     [field]: value || null,
   };
   if (!validateVendorFields(nextSnapshot)[field]) {
-    const { [field]: _clearedError, ...remainingErrors } = currentErrors;
+    const remainingErrors = { ...currentErrors };
+    delete remainingErrors[field];
     setFieldErrors(remainingErrors);
   }
 }

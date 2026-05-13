@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { getOrganizations } from "../../organizations/api";
 import type { Organization } from "../../organizations/types";
@@ -12,7 +12,7 @@ export function useVendors(tenantId: string) {
   const [loadState, setLoadState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const refreshVendors = () => {
+  const refreshVendors = useCallback(() => {
     if (!tenantId) {
       setVendors([]);
       return;
@@ -30,9 +30,9 @@ export function useVendors(tenantId: string) {
         setLoadState("error");
         setErrorMessage("Unable to load vendors.");
       });
-  };
+  }, [tenantId, status]);
 
-  const refreshOrganizations = () => {
+  const refreshOrganizations = useCallback(() => {
     if (!tenantId) {
       setOrganizations([]);
       return;
@@ -44,15 +44,15 @@ export function useVendors(tenantId: string) {
         setOrganizations([]);
         setErrorMessage("Unable to load organizations for vendor setup.");
       });
-  };
-
-  useEffect(() => {
-    refreshOrganizations();
   }, [tenantId]);
 
   useEffect(() => {
+    refreshOrganizations();
+  }, [refreshOrganizations]);
+
+  useEffect(() => {
     refreshVendors();
-  }, [tenantId, status]);
+  }, [refreshVendors]);
 
   const createNewVendor = (payload: CreateVendorPayload) => {
     setErrorMessage("");

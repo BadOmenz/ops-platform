@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   createOrganization,
@@ -35,7 +35,7 @@ export function useOrganizations(tenantId: string) {
   const selectedOrganization =
     organizations.find((organization) => organization.id === selectedOrganizationId) || null;
 
-  const refreshOrganizations = () => {
+  const refreshOrganizations = useCallback(() => {
     if (!tenantId) {
       setOrganizations([]);
       setSelectedOrganizationId("");
@@ -59,7 +59,7 @@ export function useOrganizations(tenantId: string) {
         setLoadState("error");
         setErrorMessage("Unable to load organizations.");
       });
-  };
+  }, [tenantId, status]);
 
   useEffect(() => {
     getOrganizationTypes()
@@ -69,7 +69,7 @@ export function useOrganizations(tenantId: string) {
 
   useEffect(() => {
     refreshOrganizations();
-  }, [tenantId, status]);
+  }, [refreshOrganizations]);
 
   const visibleOrganizations = useMemo(() => {
     const matches = (value: string, filter: string) =>
