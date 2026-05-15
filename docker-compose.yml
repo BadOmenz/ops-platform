@@ -30,6 +30,8 @@ services:
       DEV_AUTH_SUBJECT: ${DEV_AUTH_SUBJECT:-dev-user}
       DEV_AUTH_EMAIL: ${DEV_AUTH_EMAIL:-dev.user@example.com}
       DEV_AUTH_DISPLAY_NAME: ${DEV_AUTH_DISPLAY_NAME:-Dev User}
+      DEMO_MODE_ENABLED: ${DEMO_MODE_ENABLED:-true}
+      DEMO_SESSION_TTL_HOURS: ${DEMO_SESSION_TTL_HOURS:-24}
     depends_on:
       db:
         condition: service_healthy

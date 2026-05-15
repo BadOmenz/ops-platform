@@ -27,6 +27,8 @@ Older Project04 port/parity documents remain in `docs/` as historical migration 
 
 ## Local Docker Workflow
 
+For fresh clone setup and demo-mode troubleshooting, see [Local Development](docs/LOCAL_DEVELOPMENT.md).
+
 Start the full local stack:
 
 ```powershell
