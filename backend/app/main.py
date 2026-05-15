@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.health import router as health_router
 from app.core.settings import get_settings
+from app.domains.customers.router import router as customers_router
 from app.domains.demo.router import router as demo_router
 from app.domains.identity.router import router as identity_router
 from app.domains.organizations.router import router as organizations_router
@@ -26,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router, tags=["health"])
     app.include_router(identity_router)
     app.include_router(tenancy_router)
+    app.include_router(customers_router)
     app.include_router(organizations_router)
     app.include_router(vendors_router)
     return app

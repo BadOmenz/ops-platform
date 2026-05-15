@@ -4,6 +4,7 @@ import { OrganizationEditor } from "./OrganizationEditor";
 import { OrganizationForm } from "./OrganizationForm";
 import { OrganizationTable } from "./OrganizationTable";
 import { useOrganizations } from "../hooks/useOrganizations";
+import { CustomerWorkspace } from "../../customers/components/CustomerWorkspace";
 import { VendorWorkspace } from "../../vendors/components/VendorWorkspace";
 
 type OrganizationsPanelProps = {
@@ -12,7 +13,8 @@ type OrganizationsPanelProps = {
 
 export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
   const organizations = useOrganizations(tenantId);
-  const [view, setView] = useState<"list" | "editor" | "vendor">("list");
+  const [view, setView] = useState<"list" | "editor" | "vendor" | "customer">("list");
+  const [selectedCustomerPublicId, setSelectedCustomerPublicId] = useState("");
   const [selectedVendorPublicId, setSelectedVendorPublicId] = useState("");
 
   const openOrganization = (organizationId: string) => {
@@ -25,10 +27,27 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
     setView("vendor");
   };
 
+  const openCustomer = (customerPublicId: string) => {
+    setSelectedCustomerPublicId(customerPublicId);
+    setView("customer");
+  };
+
   const backToOrganization = (organizationId: string) => {
     organizations.setSelectedOrganizationId(organizationId);
     setView("editor");
   };
+
+  if (view === "customer" && selectedCustomerPublicId) {
+    return (
+      <section className="panel feature-panel" aria-label="Customer workspace">
+        <CustomerWorkspace
+          tenantId={tenantId}
+          customerPublicId={selectedCustomerPublicId}
+          onBackToOrganization={backToOrganization}
+        />
+      </section>
+    );
+  }
 
   if (view === "vendor" && selectedVendorPublicId) {
     return (
@@ -61,6 +80,7 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
           tenantId={tenantId}
           organization={organizations.selectedOrganization}
           organizationTypes={organizations.organizationTypes}
+          onOpenCustomer={openCustomer}
           onOpenVendor={openVendor}
           onSave={organizations.saveOrganization}
           onToggleActive={organizations.toggleOrganizationActive}

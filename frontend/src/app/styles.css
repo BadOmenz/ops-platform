@@ -257,7 +257,8 @@ h2 {
   font-weight: 700;
 }
 
-h3 {
+h3,
+h4 {
   font-size: 16px;
   font-weight: 700;
 }
@@ -509,24 +510,83 @@ textarea::placeholder {
 }
 
 .role-section-header {
-  display: grid;
-  gap: var(--space-4);
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-4);
+}
+
+.role-selector {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
   margin-bottom: var(--space-5);
 }
 
-.role-summary-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.role-view-field {
-  width: 100%;
-  max-width: 260px;
+.role-view-field,
+.role-add-field {
+  width: min(260px, 100%);
 }
 
 .role-status-filter {
   min-width: 0;
+}
+
+.role-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 360px));
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+.organization-role-card {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  border: 1px solid var(--section-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: var(--space-5);
+}
+
+.role-card-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.organization-role-card h4 {
+  margin: 0;
+  color: var(--color-text-strong);
+}
+
+.organization-role-card .muted {
+  min-height: 40px;
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.role-card-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.role-card-actions button {
+  width: 100%;
+}
+
+.role-empty-state {
+  width: min(360px, 100%);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  padding: var(--space-5);
+  font-weight: 650;
 }
 
 /* Status labels and messages */
@@ -742,6 +802,22 @@ dd {
 
   .role-view-field {
     max-width: none;
+  }
+
+  .role-section-header,
+  .role-selector {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .role-view-field,
+  .role-add-field,
+  .role-empty-state {
+    width: 100%;
+  }
+
+  .role-card-grid {
+    grid-template-columns: 1fr;
   }
 
   select,
