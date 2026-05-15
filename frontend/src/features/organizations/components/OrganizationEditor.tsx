@@ -8,6 +8,7 @@ type OrganizationEditorProps = {
   organization: Organization | null;
   organizationTypes: OrganizationType[];
   onSave: (organizationId: string, payload: UpdateOrganizationPayload) => Promise<void>;
+  onOpenCustomer: (customerPublicId: string) => void;
   onOpenVendor: (vendorPublicId: string) => void;
   onToggleActive: (organization: Organization) => Promise<void>;
 };
@@ -17,6 +18,7 @@ export function OrganizationEditor({
   organization,
   organizationTypes,
   onSave,
+  onOpenCustomer,
   onOpenVendor,
   onToggleActive,
 }: OrganizationEditorProps) {
@@ -184,6 +186,7 @@ export function OrganizationEditor({
         tenantId={tenantId}
         organizationId={organization.id}
         organizationWebsite={organization.website}
+        onOpenCustomer={onOpenCustomer}
         onOpenVendor={onOpenVendor}
       />
     </section>
