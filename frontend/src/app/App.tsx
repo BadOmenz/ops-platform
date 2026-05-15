@@ -3,12 +3,17 @@ import { useState } from "react";
 import { createDemoSession } from "../features/demo/api";
 import { getStoredDemoSession, storeDemoSession } from "../features/demo/session";
 import type { DemoSession } from "../features/demo/types";
+import { ItemCategoriesPanel } from "../features/itemCategories/components/ItemCategoriesPanel";
 import { OrganizationsPanel } from "../features/organizations/components/OrganizationsPanel";
+import { SetupHome } from "../features/setup/SetupHome";
+import { StorageLocationsPanel } from "../features/storageLocations/components/StorageLocationsPanel";
 import { TenantSelector } from "../features/tenancy/TenantSelector";
 import type { Tenant } from "../features/tenancy/types";
 import { getApiBaseUrl } from "../shared/api/config";
 
 type ThemeMode = "light" | "dark";
+type WorkspaceView = "operations" | "setup";
+type SetupView = "home" | "itemCategories" | "storageLocations";
 
 export function App() {
   const [demoSession, setDemoSession] = useState<DemoSession | null>(() => getStoredDemoSession());
@@ -16,6 +21,8 @@ export function App() {
     demoSession ? [buildDemoTenant(demoSession)] : [],
   );
   const [selectedTenantId, setSelectedTenantId] = useState(demoSession?.tenant_id || "");
+  const [workspaceView, setWorkspaceView] = useState<WorkspaceView>("operations");
+  const [setupView, setSetupView] = useState<SetupView>("home");
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
     const storedTheme = window.localStorage.getItem("project05-theme");
     return storedTheme === "dark" ? "dark" : "light";
@@ -57,6 +64,13 @@ export function App() {
     });
   };
 
+  const openWorkspace = (nextView: WorkspaceView) => {
+    setWorkspaceView(nextView);
+    if (nextView === "setup") {
+      setSetupView("home");
+    }
+  };
+
   if (!demoSession) {
     return (
       <main className="app-shell demo-entry-shell" data-theme={themeMode}>
@@ -94,9 +108,20 @@ export function App() {
       <aside className="sidebar">
         <div className="brand">Ops Platform</div>
         <nav aria-label="Primary navigation">
-          <a href="/">Home</a>
-          <a href="/tenants">Tenants</a>
-          <a href="/settings">Settings</a>
+          <button
+            className={workspaceView === "operations" ? "nav-button is-active" : "nav-button"}
+            type="button"
+            onClick={() => openWorkspace("operations")}
+          >
+            Operations
+          </button>
+          <button
+            className={workspaceView === "setup" ? "nav-button is-active" : "nav-button"}
+            type="button"
+            onClick={() => openWorkspace("setup")}
+          >
+            Setup
+          </button>
         </nav>
       </aside>
 
@@ -104,7 +129,7 @@ export function App() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Azure-ready foundation</p>
-            <h1>Operations workspace</h1>
+            <h1>{workspaceView === "setup" ? "Setup workspace" : "Operations workspace"}</h1>
           </div>
           <div className="topbar-actions">
             <TenantSelector
@@ -146,7 +171,29 @@ export function App() {
           </dl>
         </section>
 
-        {selectedTenantId && <OrganizationsPanel key={selectedTenantId} tenantId={selectedTenantId} />}
+        {selectedTenantId && workspaceView === "operations" && (
+          <OrganizationsPanel key={`organizations-${selectedTenantId}`} tenantId={selectedTenantId} />
+        )}
+        {selectedTenantId && workspaceView === "setup" && setupView === "home" && (
+          <SetupHome
+            onOpenItemCategories={() => setSetupView("itemCategories")}
+            onOpenStorageLocations={() => setSetupView("storageLocations")}
+          />
+        )}
+        {selectedTenantId && workspaceView === "setup" && setupView === "itemCategories" && (
+          <ItemCategoriesPanel
+            key={`item-categories-${selectedTenantId}`}
+            tenantId={selectedTenantId}
+            onBackToSetup={() => setSetupView("home")}
+          />
+        )}
+        {selectedTenantId && workspaceView === "setup" && setupView === "storageLocations" && (
+          <StorageLocationsPanel
+            key={`storage-locations-${selectedTenantId}`}
+            tenantId={selectedTenantId}
+            onBackToSetup={() => setSetupView("home")}
+          />
+        )}
       </section>
     </main>
   );

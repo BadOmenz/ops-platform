@@ -7,7 +7,9 @@ from app.core.settings import get_settings
 from app.db.base import Base
 from app.domains.customers import models as customer_models
 from app.domains.identity import models as identity_models
+from app.domains.item_categories import models as item_category_models
 from app.domains.organizations import models as organization_models
+from app.domains.storage_locations import models as storage_location_models
 from app.domains.tenancy import models as tenancy_models
 from app.domains.vendors import models as vendor_models
 
@@ -22,7 +24,15 @@ config.set_main_option("sqlalchemy.url", settings.database_url)
 target_metadata = Base.metadata
 
 # Keep model modules referenced so Alembic sees their tables.
-_domain_models = (customer_models, identity_models, organization_models, tenancy_models, vendor_models)
+_domain_models = (
+    customer_models,
+    identity_models,
+    item_category_models,
+    organization_models,
+    storage_location_models,
+    tenancy_models,
+    vendor_models,
+)
 
 
 def run_migrations_offline() -> None:
