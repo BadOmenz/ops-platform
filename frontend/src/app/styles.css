@@ -785,19 +785,23 @@ textarea::placeholder {
 
 .vendor-workspace {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .vendor-workspace-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
 }
 
+.vendor-workspace-header h2 {
+  font-size: var(--font-size-lg);
+}
+
 .vendor-workspace-header .muted {
   margin: var(--space-1) 0 0;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
 }
 
 .vendor-workspace .vendor-profile {
@@ -806,15 +810,43 @@ textarea::placeholder {
   padding-top: 0;
 }
 
-.vendor-workspace .editor-grid {
-  grid-template-columns: repeat(3, minmax(180px, 280px));
-  gap: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-4);
+.vendor-profile-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(100px, 0.65fr)
+    minmax(120px, 0.75fr)
+    minmax(170px, 1fr)
+    minmax(130px, 0.85fr)
+    minmax(150px, 0.95fr)
+    minmax(160px, 1fr)
+    auto;
+  gap: var(--space-2) var(--space-3);
+  align-items: end;
+}
+
+.vendor-profile-grid .field {
+  gap: var(--space-1);
+}
+
+.vendor-profile-grid input {
+  min-height: 26px;
+  font-size: var(--font-size-sm);
+}
+
+.vendor-profile-actions {
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+  padding-bottom: 0;
+}
+
+.vendor-profile-actions button {
+  min-height: 26px;
+  white-space: nowrap;
 }
 
 .vendor-workspace .vendor-items-section {
-  margin-top: var(--space-2);
-  padding-top: var(--space-4);
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
 }
 
 .vendor-workspace .vendor-items-header {
@@ -1136,6 +1168,7 @@ dd {
   .vendor-items-layout,
   .setup-card-grid,
   .editor-grid,
+  .vendor-profile-grid,
   .organizations-layout {
     grid-template-columns: 1fr;
   }
@@ -1215,6 +1248,7 @@ dd {
   }
 
   .editor-actions,
+  .vendor-profile-actions,
   .role-actions,
   .role-selector,
   .panel-actions,

@@ -179,7 +179,7 @@ export function VendorWorkspace({
       {successMessage && <div className="success-banner">{successMessage}</div>}
 
       <section className="vendor-profile">
-        <div className="editor-grid">
+        <div className="vendor-profile-grid">
           <label className="field">
             <span>Vendor Code</span>
             <input
@@ -255,20 +255,20 @@ export function VendorWorkspace({
             />
             {fieldErrors.notes && <small className="field-error">{fieldErrors.notes}</small>}
           </label>
-        </div>
 
-        <div className="editor-actions">
-          <button type="button" onClick={handleSave} disabled={!hasChanges}>
-            Save Vendor
-          </button>
-          <button
-            className="secondary-button"
-            type="button"
-            onClick={handleCancel}
-            disabled={!hasChanges}
-          >
-            Cancel
-          </button>
+          <div className="editor-actions vendor-profile-actions">
+            <button type="button" onClick={handleSave} disabled={!hasChanges}>
+              Save Vendor
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={handleCancel}
+              disabled={!hasChanges}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </section>
 
