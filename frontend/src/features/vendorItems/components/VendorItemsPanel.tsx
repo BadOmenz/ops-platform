@@ -90,18 +90,6 @@ export function VendorItemsPanel({
 
   return (
     <section className={panelClassName} aria-label="Vendor items">
-      <div className="setup-module-header vendor-items-header">
-        <div>
-          <p className="eyebrow">{isGlobal ? "Operations" : "Vendor workspace"}</p>
-          <h2>Vendor Items</h2>
-          <p className="muted">
-            {isGlobal
-              ? "Find and maintain purchasable supplier items across vendors."
-              : `Maintain purchasable items for ${vendorDisplayName || "this vendor"}.`}
-          </p>
-        </div>
-      </div>
-
       <VendorItemsToolbar
         canonicalName={vendorItems.canonicalName}
         categories={vendorItems.categories}
@@ -192,8 +180,8 @@ function VendorItemsToolbar({
 }: VendorItemsToolbarProps) {
   return (
     <div className="setup-module-toolbar vendor-items-toolbar">
-      <div>
-        <p className="eyebrow">Results</p>
+      <div className="vendor-items-toolbar-title">
+        <h2>Vendor Items</h2>
         <span className="muted">{itemCount} items</span>
       </div>
       <div className="panel-actions vendor-items-filters">
