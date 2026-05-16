@@ -280,11 +280,16 @@ function VendorItemForm({
   vendors,
 }: VendorItemFormProps) {
   const [formState, setFormState] = useState<VendorItemFormState>(emptyFormState);
+  const [savedFormState, setSavedFormState] = useState<VendorItemFormState>(emptyFormState);
   const [validationMessage, setValidationMessage] = useState("");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
 
   useEffect(() => {
-    setFormState(item ? buildFormState(item) : { ...emptyFormState, vendor_public_id: fixedVendorPublicId });
+    const nextFormState = item
+      ? buildFormState(item)
+      : { ...emptyFormState, vendor_public_id: fixedVendorPublicId };
+    setFormState(nextFormState);
+    setSavedFormState(nextFormState);
     setValidationMessage("");
   }, [fixedVendorPublicId, item]);
 
@@ -297,7 +302,7 @@ function VendorItemForm({
     () => mergeSelectedStorageLocation(storageLocations, item),
     [item, storageLocations],
   );
-  const hasChanges = !item || JSON.stringify(formState) !== JSON.stringify(buildFormState(item));
+  const hasChanges = JSON.stringify(formState) !== JSON.stringify(savedFormState);
   const canSave =
     saveState !== "saving" &&
     hasChanges &&
@@ -315,17 +320,23 @@ function VendorItemForm({
     setValidationMessage("");
     setSaveState("saving");
     const payload = item
-      ? buildChangedPayload(formState, item, fixedVendorPublicId)
+      ? buildChangedPayload(formState, savedFormState, fixedVendorPublicId)
       : buildPayload(formState, fixedVendorPublicId);
     const request = item ? onSave(item.public_id, payload) : onCreate(payload as CreateVendorItemPayload);
     request
       .then((savedItem) => {
+        const nextSavedFormState = buildFormState(savedItem);
+        setFormState(nextSavedFormState);
+        setSavedFormState(nextSavedFormState);
         onSaved(savedItem);
-        if (!item) {
-          setFormState({ ...emptyFormState, vendor_public_id: fixedVendorPublicId });
-        }
       })
       .finally(() => setSaveState("idle"));
+  };
+
+  const handleReset = () => {
+    setFormState(savedFormState);
+    setValidationMessage("");
+    onCancel();
   };
 
   return (
@@ -447,7 +458,7 @@ function VendorItemForm({
           {saveState === "saving" ? "Saving..." : "Save"}
         </button>
         {item && (
-          <button className="secondary-button" type="button" onClick={onCancel}>
+          <button className="secondary-button" type="button" onClick={handleReset}>
             New
           </button>
         )}
@@ -638,10 +649,9 @@ function buildPayload(
 
 function buildChangedPayload(
   formState: VendorItemFormState,
-  item: VendorItem,
+  baseline: VendorItemFormState,
   fixedVendorPublicId: string,
 ): UpdateVendorItemPayload {
-  const baseline = buildFormState(item);
   const fullPayload = buildPayload(formState, fixedVendorPublicId) as UpdateVendorItemPayload;
   const changedPayload: UpdateVendorItemPayload = {};
 
@@ -775,7 +785,7 @@ function buildHierarchicalCategoryOptions(categories: ItemCategory[]) {
 }
 
 function formatCategoryOptionLabel(category: ItemCategory, depth: 0 | 1) {
-  return depth === 0 ? category.display_name : `  - ${category.display_name}`;
+  return depth === 0 ? category.display_name : `\u00a0\u00a0\u00a0${category.display_name}`;
 }
 
 function groupStorageLocationOptions(locations: StorageLocation[]) {
