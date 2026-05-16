@@ -247,6 +247,7 @@ Checks run:
 
 - From `frontend/`: `npm run build`
 - App shell follow-up: expanded the global content panel/banner layout in `frontend/src/app/styles.css` so dense operational workspaces can use the available browser width while preserving sidebar navigation and page padding.
+- Workspace density follow-up: compacted the global foundation status strip and capped dense form columns so operational tables/forms sit closer to the top without restoring a narrow page width.
 
 Remaining open questions:
 

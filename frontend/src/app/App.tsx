@@ -157,7 +157,7 @@ export function App() {
 
         <div className="demo-mode-banner">Demo mode — changes may be reset.</div>
 
-        <section className="panel" aria-label="Platform status">
+        <section className="panel foundation-strip" aria-label="Platform status">
           <h2>Foundation checkpoint</h2>
           <dl>
             <div>
