@@ -49,9 +49,14 @@ const emptyFormState: DeliveryRuleFormState = {
 export function VendorDeliveryRulesPanel({ tenantId, vendorPublicId }: VendorDeliveryRulesPanelProps) {
   const deliveryRules = useVendorDeliveryRules({ tenantId, vendorPublicId });
   const [selectedPublicId, setSelectedPublicId] = useState("");
+  const [isManaging, setIsManaging] = useState(false);
   const selectedRule =
     deliveryRules.rules.find((rule) => rule.public_id === selectedPublicId) || null;
   const visibleRules = useMemo(() => sortDeliveryRules(deliveryRules.rules), [deliveryRules.rules]);
+  const activeRules = useMemo(
+    () => sortDeliveryRules(deliveryRules.rules.filter((rule) => rule.is_active)),
+    [deliveryRules.rules],
+  );
 
   useEffect(() => {
     if (
@@ -62,41 +67,75 @@ export function VendorDeliveryRulesPanel({ tenantId, vendorPublicId }: VendorDel
     }
   }, [deliveryRules.rules, selectedPublicId]);
 
+  const handleCloseManager = () => {
+    setSelectedPublicId("");
+    deliveryRules.setStatus("active");
+    setIsManaging(false);
+  };
+
   return (
     <section className="vendor-delivery-rules-panel" aria-label="Vendor delivery rules">
       {deliveryRules.errorMessage && <div className="error-banner">{deliveryRules.errorMessage}</div>}
 
-      <div className="vendor-delivery-rules-toolbar">
-        <h3>Delivery Rules</h3>
-        <span className="muted">{deliveryRules.rules.length} rules</span>
-        <button type="button" onClick={deliveryRules.refreshRules}>
-          Refresh
-        </button>
-        <select
-          value={deliveryRules.status}
-          onChange={(event) => deliveryRules.setStatus(event.target.value as VendorDeliveryRuleStatusFilter)}
-        >
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="all">All</option>
-        </select>
+      <div className="vendor-delivery-rules-summary">
+        <div className="vendor-delivery-rules-summary-main">
+          <h3>Delivery rules</h3>
+          <span className="muted">{formatDeliverySummary(activeRules, deliveryRules.loadState)}</span>
+        </div>
+        <div className="editor-actions delivery-summary-actions">
+          <button type="button" onClick={deliveryRules.refreshRules}>
+            Refresh
+          </button>
+          <button type="button" onClick={() => setIsManaging(true)}>
+            Manage
+          </button>
+        </div>
       </div>
 
-      <DeliveryRuleForm
-        onCancel={() => setSelectedPublicId("")}
-        onCreate={deliveryRules.createRule}
-        onSave={deliveryRules.saveRule}
-        onSaved={(rule) => setSelectedPublicId(rule.public_id)}
-        rule={selectedRule}
-      />
+      {isManaging && (
+        <div className="modal-backdrop" role="presentation">
+          <section className="modal-panel delivery-rules-manager" aria-label="Manage vendor delivery rules">
+            <div className="vendor-delivery-rules-toolbar">
+              <div className="vendor-delivery-rules-toolbar-title">
+                <h3>Delivery rules</h3>
+                <span className="muted">{deliveryRules.rules.length} rules</span>
+              </div>
+              <div className="panel-actions">
+                <button type="button" onClick={deliveryRules.refreshRules}>
+                  Refresh
+                </button>
+                <select
+                  value={deliveryRules.status}
+                  onChange={(event) => deliveryRules.setStatus(event.target.value as VendorDeliveryRuleStatusFilter)}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="all">All</option>
+                </select>
+                <button className="secondary-button" type="button" onClick={handleCloseManager}>
+                  Close
+                </button>
+              </div>
+            </div>
 
-      <DeliveryRulesTable
-        loadState={deliveryRules.loadState}
-        onSelect={setSelectedPublicId}
-        onToggleActive={deliveryRules.toggleRuleActive}
-        rules={visibleRules}
-        selectedPublicId={selectedPublicId}
-      />
+            <DeliveryRuleForm
+              onCancel={() => setSelectedPublicId("")}
+              onCreate={deliveryRules.createRule}
+              onSave={deliveryRules.saveRule}
+              onSaved={(rule) => setSelectedPublicId(rule.public_id)}
+              rule={selectedRule}
+            />
+
+            <DeliveryRulesTable
+              loadState={deliveryRules.loadState}
+              onSelect={setSelectedPublicId}
+              onToggleActive={deliveryRules.toggleRuleActive}
+              rules={visibleRules}
+              selectedPublicId={selectedPublicId}
+            />
+          </section>
+        </div>
+      )}
     </section>
   );
 }
@@ -453,4 +492,29 @@ function formatWindow(rule: VendorDeliveryRule) {
     return "";
   }
   return `${formatTime(rule.delivery_window_start)}-${formatTime(rule.delivery_window_end)}`;
+}
+
+function formatDeliverySummary(
+  activeRules: VendorDeliveryRule[],
+  loadState: "idle" | "loading" | "ready" | "error",
+) {
+  if (loadState === "loading") {
+    return "Loading delivery rules...";
+  }
+  if (activeRules.length === 0) {
+    return "No active delivery rules";
+  }
+
+  const compactRules = activeRules.slice(0, 4).map(
+    (rule) =>
+      `${formatShortWeekday(rule.delivery_weekday)} by ${formatShortWeekday(rule.order_cutoff_weekday)} ${formatTime(
+        rule.order_cutoff_time,
+      )}`,
+  );
+  const remainder = activeRules.length > compactRules.length ? `, +${activeRules.length - compactRules.length} more` : "";
+  return `${activeRules.length} active: ${compactRules.join(", ")}${remainder}`;
+}
+
+function formatShortWeekday(weekday: Weekday | string) {
+  return formatWeekday(weekday).slice(0, 3);
 }

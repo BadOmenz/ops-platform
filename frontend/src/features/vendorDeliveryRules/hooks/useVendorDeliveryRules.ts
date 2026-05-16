@@ -54,7 +54,11 @@ export function useVendorDeliveryRules({ tenantId, vendorPublicId }: UseVendorDe
     setErrorMessage("");
     return createVendorDeliveryRule(tenantId, vendorPublicId, payload)
       .then((createdRule) => {
-        setRules((current) => [createdRule, ...current]);
+        setRules((current) =>
+          status === "all" || createdRule.is_active === (status === "active")
+            ? [createdRule, ...current]
+            : current,
+        );
         return createdRule;
       })
       .catch((error) => {
@@ -123,9 +127,13 @@ function readApiError(error: unknown, fallback: string) {
     error.response !== null &&
     "data" in error.response
   ) {
-    const data = error.response.data as { detail?: unknown };
-    if (typeof data.detail === "string") {
+    const response = error.response as { data?: { detail?: unknown }; status?: number };
+    const data = response.data;
+    if (typeof data?.detail === "string") {
       return data.detail;
+    }
+    if (typeof response.status === "number") {
+      return `${fallback} (${response.status})`;
     }
   }
   return fallback;
