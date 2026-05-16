@@ -201,6 +201,7 @@ textarea {
 }
 
 .workspace {
+  width: 100%;
   min-width: 0;
   padding: var(--space-8);
 }
@@ -694,7 +695,7 @@ textarea::placeholder {
 
 /* Panels and layout */
 .panel {
-  max-width: 1180px;
+  width: 100%;
   border: 1px solid var(--section-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface-raised);
@@ -912,7 +913,6 @@ textarea::placeholder {
 }
 
 .demo-mode-banner {
-  max-width: 1180px;
   border: 1px solid var(--color-primary-border);
   background: var(--color-primary-subtle);
   color: var(--color-primary);

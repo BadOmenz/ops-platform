@@ -246,6 +246,7 @@ Decisions made:
 Checks run:
 
 - From `frontend/`: `npm run build`
+- App shell follow-up: expanded the global content panel/banner layout in `frontend/src/app/styles.css` so dense operational workspaces can use the available browser width while preserving sidebar navigation and page padding.
 
 Remaining open questions:
 
