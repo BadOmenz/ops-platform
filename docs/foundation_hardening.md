@@ -242,6 +242,31 @@ Future consideration:
 
 Do not add audit complexity before auth is stable.
 
+## Future Hardening Backlog
+
+This section captures future architectural hardening concerns that are intentionally deferred while the operational domain model and workflows continue to mature.
+
+### Not urgent
+
+- Keep demo tenant/session state isolated and transient. A cleanup or retention policy should be considered once demo workspaces accumulate.
+- Preserve the current compact operational UX philosophy. Avoid turning tenant selection and workspace navigation into heavyweight page flows too early.
+
+### Before production
+
+- Harden the auth boundary with a real token-based Entra/OAuth flow and backend token validation.
+- Add role-based authorization checks in addition to tenant membership verification.
+- Prefer auth-derived tenant context over client-provided tenant IDs where feasible.
+- Add pagination or list metadata to list endpoints before tenant operational data grows large.
+- Evolve the frontend shared API client so auth headers, tenant context, and common error handling are centralized.
+- Add audit actor metadata such as `created_by`/`updated_by` once auth is stable and production-ready.
+
+### Later scaling
+
+- Consider tenant consistency constraints at the database layer for key cross-domain relationships.
+- Protect high-volume operational list endpoints from unbounded results and expensive filter patterns.
+- Review filter/query patterns that resolve reference IDs separately for performance-sensitive domains.
+- Reserve event/audit tables for order/inventory intelligence only after the core tenant/auth boundary is stable.
+
 ## Migration Discipline
 
 Rules:
