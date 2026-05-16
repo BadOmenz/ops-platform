@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getVendor, updateVendor } from "../api";
 import type { Vendor } from "../types";
+import { VendorItemsPanel } from "../../vendorItems/components/VendorItemsPanel";
 
 type VendorWorkspaceProps = {
   tenantId: string;
@@ -279,9 +280,13 @@ export function VendorWorkspace({
         </div>
       </section>
 
-      <section className="vendor-products-placeholder">
-        <p className="eyebrow">Vendor Products</p>
-        <p className="muted">Vendor products will be added later.</p>
+      <section className="vendor-items-section">
+        <VendorItemsPanel
+          tenantId={tenantId}
+          vendorPublicId={vendor.public_id}
+          vendorDisplayName={vendor.organization_display_name}
+          mode="vendor"
+        />
       </section>
     </section>
   );

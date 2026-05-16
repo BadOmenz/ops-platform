@@ -215,3 +215,39 @@ Open questions:
 
 - Frontend setup/admin implementation remains pending.
 - Existing vendor response still exposes `id`; vendor items intentionally do not copy that behavior.
+
+## Frontend First-Slice Implementation Notes
+
+Files created:
+
+- `frontend/src/features/vendorItems/api.ts`
+- `frontend/src/features/vendorItems/types.ts`
+- `frontend/src/features/vendorItems/hooks/useVendorItems.ts`
+- `frontend/src/features/vendorItems/components/VendorItemsPanel.tsx`
+
+Files updated:
+
+- `frontend/src/app/App.tsx`
+- `frontend/src/app/styles.css`
+- `frontend/src/features/vendors/components/VendorWorkspace.tsx`
+
+Decisions made:
+
+- Added a global `Vendor Items` workspace as a primary navigation entry.
+- Replaced the vendor workspace placeholder with a vendor-scoped `VendorItemsPanel`.
+- Shared one vendor items feature module across global and vendor-scoped entry points.
+- Global mode allows vendor, canonical name, category, storage location, and status filtering.
+- Vendor-scoped mode fixes `vendor_public_id` and does not ask the user to choose a vendor.
+- Create/edit forms use public IDs only and allow nullable category/storage assignments.
+- New category/storage assignment choices come from active setup records.
+- Update payloads send only changed fields so existing inactive category/storage references can remain untouched.
+- Reactivation uses the explicit backend reactivation endpoint.
+
+Checks run:
+
+- From `frontend/`: `npm run build`
+
+Remaining open questions:
+
+- No browser smoke test was performed in this implementation pass.
+- Future UX polish may split the dense form into sections or tabs if the field count becomes cumbersome.

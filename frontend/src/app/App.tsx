@@ -9,10 +9,11 @@ import { SetupHome } from "../features/setup/SetupHome";
 import { StorageLocationsPanel } from "../features/storageLocations/components/StorageLocationsPanel";
 import { TenantSelector } from "../features/tenancy/TenantSelector";
 import type { Tenant } from "../features/tenancy/types";
+import { VendorItemsPanel } from "../features/vendorItems/components/VendorItemsPanel";
 import { getApiBaseUrl } from "../shared/api/config";
 
 type ThemeMode = "light" | "dark";
-type WorkspaceView = "operations" | "setup";
+type WorkspaceView = "operations" | "vendorItems" | "setup";
 type SetupView = "home" | "itemCategories" | "storageLocations";
 
 export function App() {
@@ -116,6 +117,13 @@ export function App() {
             Operations
           </button>
           <button
+            className={workspaceView === "vendorItems" ? "nav-button is-active" : "nav-button"}
+            type="button"
+            onClick={() => openWorkspace("vendorItems")}
+          >
+            Vendor Items
+          </button>
+          <button
             className={workspaceView === "setup" ? "nav-button is-active" : "nav-button"}
             type="button"
             onClick={() => openWorkspace("setup")}
@@ -129,7 +137,7 @@ export function App() {
         <header className="topbar">
           <div>
             <p className="eyebrow">Azure-ready foundation</p>
-            <h1>{workspaceView === "setup" ? "Setup workspace" : "Operations workspace"}</h1>
+            <h1>{getWorkspaceTitle(workspaceView)}</h1>
           </div>
           <div className="topbar-actions">
             <TenantSelector
@@ -174,6 +182,13 @@ export function App() {
         {selectedTenantId && workspaceView === "operations" && (
           <OrganizationsPanel key={`organizations-${selectedTenantId}`} tenantId={selectedTenantId} />
         )}
+        {selectedTenantId && workspaceView === "vendorItems" && (
+          <VendorItemsPanel
+            key={`vendor-items-${selectedTenantId}`}
+            tenantId={selectedTenantId}
+            mode="global"
+          />
+        )}
         {selectedTenantId && workspaceView === "setup" && setupView === "home" && (
           <SetupHome
             onOpenItemCategories={() => setSetupView("itemCategories")}
@@ -197,6 +212,16 @@ export function App() {
       </section>
     </main>
   );
+}
+
+function getWorkspaceTitle(workspaceView: WorkspaceView) {
+  if (workspaceView === "setup") {
+    return "Setup workspace";
+  }
+  if (workspaceView === "vendorItems") {
+    return "Vendor items workspace";
+  }
+  return "Operations workspace";
 }
 
 function buildDemoTenant(session: DemoSession): Tenant {

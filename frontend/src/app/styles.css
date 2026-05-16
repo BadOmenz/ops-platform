@@ -722,10 +722,57 @@ textarea::placeholder {
 
 .organization-editor,
 .vendor-profile,
-.vendor-products-placeholder {
+.vendor-items-section {
   border-top: 1px solid var(--section-border);
   margin-top: var(--space-6);
   padding-top: var(--space-6);
+}
+
+.vendor-items-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.38fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.vendor-items-embedded {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.vendor-items-header {
+  margin-bottom: var(--space-5);
+}
+
+.vendor-items-toolbar .vendor-items-filters {
+  justify-content: flex-end;
+}
+
+.vendor-items-filters input,
+.vendor-items-filters select {
+  width: auto;
+  min-width: 150px;
+  min-height: 26px;
+  font-size: var(--font-size-sm);
+}
+
+.vendor-item-form textarea {
+  min-height: 58px;
+  font-size: var(--font-size-sm);
+}
+
+.vendor-item-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(110px, 1fr));
+  gap: var(--space-3);
+}
+
+.vendor-items-table table {
+  min-width: 1040px;
+}
+
+.vendor-items-table strong {
+  color: var(--color-text-strong);
 }
 
 .vendor-role-card {
@@ -987,6 +1034,7 @@ dd {
   .organization-form,
   .vendor-form,
   .setup-grid,
+  .vendor-items-layout,
   .setup-card-grid,
   .editor-grid,
   .organizations-layout {
@@ -1030,6 +1078,11 @@ dd {
   .setup-module-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .vendor-items-filters input,
+  .vendor-items-filters select {
+    width: 100%;
   }
 
   .role-view-field {
