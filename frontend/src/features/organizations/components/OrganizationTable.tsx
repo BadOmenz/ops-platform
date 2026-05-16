@@ -7,6 +7,7 @@ type OrganizationTableProps = {
   displayNameFilter: string;
   notesFilter: string;
   organizations: Organization[];
+  selectedOrganizationId: string;
   sortDirection: OrganizationSortDirection;
   sortField: OrganizationSortField;
   status: OrganizationStatusFilter;
@@ -14,9 +15,11 @@ type OrganizationTableProps = {
   onClearFilters: () => void;
   onContactFilterChange: (value: string) => void;
   onDisplayNameFilterChange: (value: string) => void;
+  onNewOrganization: () => void;
   onNotesFilterChange: (value: string) => void;
   onOpenOrganization: (organizationId: string) => void;
   onRefresh: () => void;
+  onSelectOrganization: (organizationId: string) => void;
   onSort: (field: OrganizationSortField) => void;
   onStatusChange: (status: OrganizationStatusFilter) => void;
   onTypeFilterChange: (value: string) => void;
@@ -27,6 +30,7 @@ export function OrganizationTable({
   displayNameFilter,
   notesFilter,
   organizations,
+  selectedOrganizationId,
   sortDirection,
   sortField,
   status,
@@ -34,9 +38,11 @@ export function OrganizationTable({
   onClearFilters,
   onContactFilterChange,
   onDisplayNameFilterChange,
+  onNewOrganization,
   onNotesFilterChange,
   onOpenOrganization,
   onRefresh,
+  onSelectOrganization,
   onSort,
   onStatusChange,
   onTypeFilterChange,
@@ -50,20 +56,45 @@ export function OrganizationTable({
 
   return (
     <>
-      <div className="table-toolbar">
-        <button type="button" onClick={onRefresh}>
-          Refresh
-        </button>
-        <button type="button" onClick={onClearFilters}>
-          Clear Filters
-        </button>
-        <select value={status} onChange={(event) => onStatusChange(event.target.value as OrganizationStatusFilter)}>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="all">All</option>
-        </select>
+      <div className="setup-module-toolbar organizations-toolbar">
+        <div>
+          <p className="eyebrow">Results</p>
+          <span className="muted">{organizations.length} organizations</span>
+        </div>
+        <div className="panel-actions organizations-filters">
+          <button type="button" onClick={onNewOrganization}>
+            New
+          </button>
+          <button type="button" onClick={onRefresh}>
+            Refresh
+          </button>
+          <button className="secondary-button" type="button" onClick={onClearFilters}>
+            Clear Filters
+          </button>
+          <select value={status} onChange={(event) => onStatusChange(event.target.value as OrganizationStatusFilter)}>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="all">All</option>
+          </select>
+          <input
+            value={displayNameFilter}
+            onChange={(event) => onDisplayNameFilterChange(event.target.value)}
+            placeholder="Name"
+          />
+          <input value={typeFilter} onChange={(event) => onTypeFilterChange(event.target.value)} placeholder="Type" />
+          <input
+            value={contactFilter}
+            onChange={(event) => onContactFilterChange(event.target.value)}
+            placeholder="Contact"
+          />
+          <input
+            value={notesFilter}
+            onChange={(event) => onNotesFilterChange(event.target.value)}
+            placeholder="Notes"
+          />
+        </div>
       </div>
-      <div className="table-shell">
+      <div className="table-shell setup-table organizations-table">
         <table>
           <thead>
             <tr>
@@ -71,41 +102,18 @@ export function OrganizationTable({
               <th>{sortableHeader("Types", "type")}</th>
               <th>{sortableHeader("Contact", "contact")}</th>
               <th>{sortableHeader("Notes", "notes")}</th>
-            </tr>
-            <tr>
-              <th>
-                <input
-                  value={displayNameFilter}
-                  onChange={(event) => onDisplayNameFilterChange(event.target.value)}
-                  placeholder="Filter name"
-                />
-              </th>
-              <th>
-                <input value={typeFilter} onChange={(event) => onTypeFilterChange(event.target.value)} placeholder="Filter type" />
-              </th>
-              <th>
-                <input
-                  value={contactFilter}
-                  onChange={(event) => onContactFilterChange(event.target.value)}
-                  placeholder="Filter contact"
-                />
-              </th>
-              <th>
-                <input
-                  value={notesFilter}
-                  onChange={(event) => onNotesFilterChange(event.target.value)}
-                  placeholder="Filter notes"
-                />
-              </th>
+              <th>Workspace</th>
             </tr>
           </thead>
           <tbody>
             {organizations.map((organization) => (
-              <tr key={organization.id}>
+              <tr
+                key={organization.id}
+                className={selectedOrganizationId === organization.id ? "selected-row" : undefined}
+                onClick={() => onSelectOrganization(organization.id)}
+              >
                 <td>
-                  <button className="link-button" type="button" onClick={() => onOpenOrganization(organization.id)}>
-                    {organization.display_name}
-                  </button>
+                  <strong>{organization.display_name}</strong>
                 </td>
                 <td>{organization.organization_types.map((type) => type.name).join(", ") || "None"}</td>
                 <td>
@@ -114,11 +122,22 @@ export function OrganizationTable({
                     .join(" | ")}
                 </td>
                 <td>{organization.notes || ""}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onOpenOrganization(organization.id);
+                    }}
+                  >
+                    Open
+                  </button>
+                </td>
               </tr>
             ))}
             {organizations.length === 0 && (
               <tr>
-                <td colSpan={4}>No organizations</td>
+                <td colSpan={5}>No organizations</td>
               </tr>
             )}
           </tbody>
