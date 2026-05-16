@@ -161,10 +161,10 @@ export function VendorWorkspace({
 
   return (
     <section className="vendor-workspace" aria-label="Vendor workspace">
-      <div className="panel-header">
+      <div className="vendor-workspace-header">
         <div>
-          <p className="eyebrow">Vendor</p>
           <h2>{vendor.organization_display_name}</h2>
+          <p className="muted">Linked organization: {vendor.organization_display_name}</p>
         </div>
         <button
           className="secondary-button"
@@ -179,14 +179,6 @@ export function VendorWorkspace({
       {successMessage && <div className="success-banner">{successMessage}</div>}
 
       <section className="vendor-profile">
-        <div>
-          <p className="eyebrow">Profile</p>
-          <h3>Vendor details</h3>
-        </div>
-        <p className="muted">
-          Linked organization: {vendor.organization_display_name}
-        </p>
-
         <div className="editor-grid">
           <label className="field">
             <span>Vendor Code</span>
