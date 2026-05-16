@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { getVendor, updateVendor } from "../api";
 import type { Vendor } from "../types";
+import { VendorDeliveryRulesPanel } from "../../vendorDeliveryRules/components/VendorDeliveryRulesPanel";
 import { VendorItemsPanel } from "../../vendorItems/components/VendorItemsPanel";
 
 type VendorWorkspaceProps = {
@@ -270,6 +271,10 @@ export function VendorWorkspace({
             </button>
           </div>
         </div>
+      </section>
+
+      <section className="vendor-delivery-rules-section">
+        <VendorDeliveryRulesPanel tenantId={tenantId} vendorPublicId={vendor.public_id} />
       </section>
 
       <section className="vendor-items-section">

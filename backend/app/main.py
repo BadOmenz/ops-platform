@@ -10,6 +10,7 @@ from app.domains.item_categories.router import router as item_categories_router
 from app.domains.organizations.router import router as organizations_router
 from app.domains.storage_locations.router import router as storage_locations_router
 from app.domains.tenancy.router import router as tenancy_router
+from app.domains.vendor_delivery_rules.router import router as vendor_delivery_rules_router
 from app.domains.vendor_items.router import router as vendor_items_router
 from app.domains.vendors.router import router as vendors_router
 
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     app.include_router(item_categories_router)
     app.include_router(organizations_router)
     app.include_router(storage_locations_router)
+    app.include_router(vendor_delivery_rules_router)
     app.include_router(vendor_items_router)
     app.include_router(vendors_router)
     return app

@@ -792,6 +792,7 @@ textarea::placeholder {
 
 .organization-editor,
 .vendor-profile,
+.vendor-delivery-rules-section,
 .vendor-items-section {
   border-top: 1px solid var(--section-border);
   margin-top: var(--space-6);
@@ -862,6 +863,89 @@ textarea::placeholder {
 .vendor-workspace .vendor-items-section {
   margin-top: var(--space-1);
   padding-top: var(--space-3);
+}
+
+.vendor-workspace .vendor-delivery-rules-section {
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+}
+
+.vendor-delivery-rules-panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.vendor-delivery-rules-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.vendor-delivery-rules-toolbar h3 {
+  font-size: var(--font-size-lg);
+}
+
+.vendor-delivery-rules-toolbar .muted {
+  font-size: var(--font-size-sm);
+}
+
+.vendor-delivery-rules-toolbar button,
+.vendor-delivery-rules-toolbar select {
+  min-height: 26px;
+  font-size: var(--font-size-sm);
+}
+
+.delivery-rule-form {
+  display: grid;
+  grid-template-columns:
+    minmax(118px, 0.8fr)
+    minmax(118px, 0.8fr)
+    minmax(96px, 0.65fr)
+    minmax(86px, 0.55fr)
+    minmax(100px, 0.7fr)
+    minmax(96px, 0.65fr)
+    minmax(96px, 0.65fr)
+    minmax(180px, 1fr)
+    auto;
+  gap: var(--space-2) var(--space-3);
+  align-items: end;
+}
+
+.delivery-rule-form .field {
+  gap: var(--space-1);
+}
+
+.delivery-rule-form input,
+.delivery-rule-form select {
+  min-height: 26px;
+  font-size: var(--font-size-sm);
+}
+
+.delivery-rule-form .error-banner {
+  grid-column: 1 / -1;
+}
+
+.delivery-rule-notes input {
+  min-width: 180px;
+}
+
+.delivery-rule-actions {
+  gap: var(--space-2);
+  flex-wrap: nowrap;
+}
+
+.delivery-rule-actions button {
+  min-height: 26px;
+  white-space: nowrap;
+}
+
+.delivery-rules-table table {
+  min-width: 980px;
+}
+
+.delivery-rules-table strong {
+  color: var(--color-text-strong);
 }
 
 .vendor-items-layout {
@@ -1210,6 +1294,7 @@ dd {
   .setup-grid,
   .vendor-items-layout,
   .setup-card-grid,
+  .delivery-rule-form,
   .editor-grid,
   .vendor-profile-grid,
   .organizations-layout {
