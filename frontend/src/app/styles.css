@@ -382,6 +382,21 @@ select {
   min-width: 170px;
 }
 
+optgroup {
+  color: var(--color-text-strong);
+  font-weight: 750;
+}
+
+option.select-option-parent {
+  color: var(--color-text-strong);
+  font-weight: 700;
+}
+
+option.select-option-child {
+  color: var(--color-text);
+  font-weight: 400;
+}
+
 textarea {
   min-height: 64px;
   padding-block: var(--space-2);
@@ -870,6 +885,8 @@ textarea::placeholder {
   justify-content: flex-start;
   margin-bottom: var(--space-3);
   padding: var(--space-2) 0;
+  overflow-x: auto;
+  flex-wrap: nowrap;
 }
 
 .vendor-items-toolbar-title {
@@ -891,6 +908,8 @@ textarea::placeholder {
 .vendor-items-toolbar .vendor-items-filters {
   justify-content: flex-start;
   gap: var(--space-3);
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
 }
 
 .vendor-items-filters input,

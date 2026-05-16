@@ -11,6 +11,22 @@ import type {
   VendorItemStatusFilter,
 } from "../types";
 
+const storageTypeLabels: Record<StorageLocation["storage_type"], string> = {
+  cooler: "Cooler",
+  freezer: "Freezer",
+  dry: "Dry Storage",
+  ambient: "Ambient",
+  other: "Other",
+};
+
+const storageTypeOrder: Array<StorageLocation["storage_type"]> = [
+  "cooler",
+  "freezer",
+  "dry",
+  "ambient",
+  "other",
+];
+
 type VendorItemsPanelProps = {
   tenantId: string;
   vendorPublicId?: string;
@@ -90,25 +106,6 @@ export function VendorItemsPanel({
 
   return (
     <section className={panelClassName} aria-label="Vendor items">
-      <VendorItemsToolbar
-        canonicalName={vendorItems.canonicalName}
-        categories={vendorItems.categories}
-        categoryPublicId={vendorItems.categoryPublicId}
-        isGlobal={isGlobal}
-        itemCount={vendorItems.items.length}
-        onCanonicalNameChange={vendorItems.setCanonicalName}
-        onCategoryChange={vendorItems.setCategoryPublicId}
-        onRefresh={vendorItems.refreshItems}
-        onStatusChange={vendorItems.setStatus}
-        onStorageLocationChange={vendorItems.setStorageLocationPublicId}
-        onVendorChange={vendorItems.setVendorPublicId}
-        status={vendorItems.status}
-        storageLocationPublicId={vendorItems.storageLocationPublicId}
-        storageLocations={vendorItems.storageLocations}
-        vendorPublicId={vendorItems.vendorPublicId}
-        vendors={vendorItems.vendors}
-      />
-
       {vendorItems.errorMessage && <div className="error-banner">{vendorItems.errorMessage}</div>}
 
       <div className="vendor-items-layout">
@@ -127,6 +124,24 @@ export function VendorItemsPanel({
         </section>
 
         <section className="setup-results-section" aria-label="Vendor item results">
+          <VendorItemsToolbar
+            canonicalName={vendorItems.canonicalName}
+            categories={vendorItems.categories}
+            categoryPublicId={vendorItems.categoryPublicId}
+            isGlobal={isGlobal}
+            itemCount={vendorItems.items.length}
+            onCanonicalNameChange={vendorItems.setCanonicalName}
+            onCategoryChange={vendorItems.setCategoryPublicId}
+            onRefresh={vendorItems.refreshItems}
+            onStatusChange={vendorItems.setStatus}
+            onStorageLocationChange={vendorItems.setStorageLocationPublicId}
+            onVendorChange={vendorItems.setVendorPublicId}
+            status={vendorItems.status}
+            storageLocationPublicId={vendorItems.storageLocationPublicId}
+            storageLocations={vendorItems.storageLocations}
+            vendorPublicId={vendorItems.vendorPublicId}
+            vendors={vendorItems.vendors}
+          />
           <VendorItemsTable
             isGlobal={isGlobal}
             items={visibleItems}
@@ -211,9 +226,13 @@ function VendorItemsToolbar({
         />
         <select value={categoryPublicId} onChange={(event) => onCategoryChange(event.target.value)}>
           <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category.public_id} value={category.public_id}>
-              {category.display_name}
+          {buildHierarchicalCategoryOptions(categories).map(({ category, depth }) => (
+            <option
+              className={depth === 0 ? "select-option-parent" : "select-option-child"}
+              key={category.public_id}
+              value={category.public_id}
+            >
+              {formatCategoryOptionLabel(category, depth)}
             </option>
           ))}
         </select>
@@ -222,10 +241,14 @@ function VendorItemsToolbar({
           onChange={(event) => onStorageLocationChange(event.target.value)}
         >
           <option value="">All storage</option>
-          {storageLocations.map((location) => (
-            <option key={location.public_id} value={location.public_id}>
-              {location.display_name}
-            </option>
+          {groupStorageLocationOptions(storageLocations).map((group) => (
+            <optgroup key={group.storageType} label={storageTypeLabels[group.storageType]}>
+              {group.locations.map((location) => (
+                <option className="select-option-child" key={location.public_id} value={location.public_id}>
+                  {location.display_name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
@@ -362,9 +385,13 @@ function VendorItemForm({
           onChange={(event) => updateField("category_public_id", event.target.value, setFormState)}
         >
           <option value="">None</option>
-          {categoryOptions.map((category) => (
-            <option key={category.public_id} value={category.public_id}>
-              {category.display_name}
+          {buildHierarchicalCategoryOptions(categoryOptions).map(({ category, depth }) => (
+            <option
+              className={depth === 0 ? "select-option-parent" : "select-option-child"}
+              key={category.public_id}
+              value={category.public_id}
+            >
+              {formatCategoryOptionLabel(category, depth)}
             </option>
           ))}
         </select>
@@ -379,10 +406,14 @@ function VendorItemForm({
           }
         >
           <option value="">None</option>
-          {storageLocationOptions.map((location) => (
-            <option key={location.public_id} value={location.public_id}>
-              {location.display_name}
-            </option>
+          {groupStorageLocationOptions(storageLocationOptions).map((group) => (
+            <optgroup key={group.storageType} label={storageTypeLabels[group.storageType]}>
+              {group.locations.map((location) => (
+                <option className="select-option-child" key={location.public_id} value={location.public_id}>
+                  {location.display_name}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </label>
@@ -706,6 +737,63 @@ function mergeSelectedStorageLocation(storageLocations: StorageLocation[], item:
       updated_at: item.updated_at,
     },
   ];
+}
+
+function buildHierarchicalCategoryOptions(categories: ItemCategory[]) {
+  const alphabetically = (first: ItemCategory, second: ItemCategory) =>
+    first.display_name.localeCompare(second.display_name, undefined, { sensitivity: "base" });
+  const parents = categories.filter((category) => category.parent_id === null).sort(alphabetically);
+  const children = categories.filter((category) => category.parent_id !== null).sort(alphabetically);
+  const childrenByParentId = new Map<string, ItemCategory[]>();
+
+  children.forEach((category) => {
+    if (!category.parent_id) {
+      return;
+    }
+    const groupedChildren = childrenByParentId.get(category.parent_id) || [];
+    groupedChildren.push(category);
+    childrenByParentId.set(category.parent_id, groupedChildren);
+  });
+
+  const options: Array<{ category: ItemCategory; depth: 0 | 1 }> = [];
+  const includedChildren = new Set<string>();
+
+  parents.forEach((parent) => {
+    options.push({ category: parent, depth: 0 });
+    const parentChildren = childrenByParentId.get(parent.public_id) || [];
+    parentChildren.forEach((child) => {
+      options.push({ category: child, depth: 1 });
+      includedChildren.add(child.public_id);
+    });
+  });
+
+  children
+    .filter((child) => !includedChildren.has(child.public_id))
+    .forEach((child) => options.push({ category: child, depth: 1 }));
+
+  return options;
+}
+
+function formatCategoryOptionLabel(category: ItemCategory, depth: 0 | 1) {
+  return depth === 0 ? category.display_name : `  - ${category.display_name}`;
+}
+
+function groupStorageLocationOptions(locations: StorageLocation[]) {
+  const locationsByType = new Map<StorageLocation["storage_type"], StorageLocation[]>();
+  locations.forEach((location) => {
+    const groupedLocations = locationsByType.get(location.storage_type) || [];
+    groupedLocations.push(location);
+    locationsByType.set(location.storage_type, groupedLocations);
+  });
+
+  return storageTypeOrder
+    .map((storageType) => ({
+      storageType,
+      locations: (locationsByType.get(storageType) || []).sort((first, second) =>
+        first.display_name.localeCompare(second.display_name, undefined, { sensitivity: "base" }),
+      ),
+    }))
+    .filter((group) => group.locations.length > 0);
 }
 
 function sortVendorItems(items: VendorItem[]) {
