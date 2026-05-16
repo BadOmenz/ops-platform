@@ -171,7 +171,7 @@ export function VendorWorkspace({
           type="button"
           onClick={() => onBackToOrganization(vendor.organization_id)}
         >
-          Back to Organization
+          Back to Organizations
         </button>
       </div>
 

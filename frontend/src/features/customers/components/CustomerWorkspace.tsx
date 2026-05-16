@@ -176,7 +176,7 @@ export function CustomerWorkspace({
           type="button"
           onClick={() => onBackToOrganization(customer.organization_id)}
         >
-          Back to Organization
+          Back to Organizations
         </button>
       </div>
 

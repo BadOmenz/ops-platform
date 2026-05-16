@@ -13,16 +13,10 @@ type OrganizationsPanelProps = {
 
 export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
   const organizations = useOrganizations(tenantId);
-  const [view, setView] = useState<"list" | "editor" | "vendor" | "customer">("list");
+  const [view, setView] = useState<"list" | "vendor" | "customer">("list");
   const [editorMode, setEditorMode] = useState<"create" | "edit">("edit");
   const [selectedCustomerPublicId, setSelectedCustomerPublicId] = useState("");
   const [selectedVendorPublicId, setSelectedVendorPublicId] = useState("");
-
-  const openOrganization = (organizationId: string) => {
-    organizations.setSelectedOrganizationId(organizationId);
-    setEditorMode("edit");
-    setView("editor");
-  };
 
   const selectOrganization = (organizationId: string) => {
     organizations.setSelectedOrganizationId(organizationId);
@@ -42,7 +36,7 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
   const backToOrganization = (organizationId: string) => {
     organizations.setSelectedOrganizationId(organizationId);
     setEditorMode("edit");
-    setView("editor");
+    setView("list");
   };
 
   if (view === "customer" && selectedCustomerPublicId) {
@@ -64,34 +58,6 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
           tenantId={tenantId}
           vendorPublicId={selectedVendorPublicId}
           onBackToOrganization={backToOrganization}
-        />
-      </section>
-    );
-  }
-
-  if (view === "editor") {
-    return (
-      <section className="panel feature-panel" aria-label="Organization editor">
-        <div className="panel-header">
-          <div>
-            <p className="eyebrow">Organization</p>
-            <h2>{organizations.selectedOrganization?.display_name || "Editor"}</h2>
-          </div>
-          <button type="button" onClick={() => setView("list")}>
-            Back
-          </button>
-        </div>
-
-        {organizations.errorMessage && <div className="error-banner">{organizations.errorMessage}</div>}
-
-        <OrganizationEditor
-          tenantId={tenantId}
-          organization={organizations.selectedOrganization}
-          organizationTypes={organizations.organizationTypes}
-          onOpenCustomer={openCustomer}
-          onOpenVendor={openVendor}
-          onSave={organizations.saveOrganization}
-          onToggleActive={organizations.toggleOrganizationActive}
         />
       </section>
     );
@@ -146,7 +112,6 @@ export function OrganizationsPanel({ tenantId }: OrganizationsPanelProps) {
             onDisplayNameFilterChange={organizations.setDisplayNameFilter}
             onNewOrganization={() => setEditorMode("create")}
             onNotesFilterChange={organizations.setNotesFilter}
-            onOpenOrganization={openOrganization}
             onRefresh={organizations.refreshOrganizations}
             onSelectOrganization={selectOrganization}
             onSort={organizations.handleSort}

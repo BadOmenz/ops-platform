@@ -17,7 +17,6 @@ type OrganizationTableProps = {
   onDisplayNameFilterChange: (value: string) => void;
   onNewOrganization: () => void;
   onNotesFilterChange: (value: string) => void;
-  onOpenOrganization: (organizationId: string) => void;
   onRefresh: () => void;
   onSelectOrganization: (organizationId: string) => void;
   onSort: (field: OrganizationSortField) => void;
@@ -40,7 +39,6 @@ export function OrganizationTable({
   onDisplayNameFilterChange,
   onNewOrganization,
   onNotesFilterChange,
-  onOpenOrganization,
   onRefresh,
   onSelectOrganization,
   onSort,
@@ -102,7 +100,6 @@ export function OrganizationTable({
               <th>{sortableHeader("Types", "type")}</th>
               <th>{sortableHeader("Contact", "contact")}</th>
               <th>{sortableHeader("Notes", "notes")}</th>
-              <th>Workspace</th>
             </tr>
           </thead>
           <tbody>
@@ -122,22 +119,11 @@ export function OrganizationTable({
                     .join(" | ")}
                 </td>
                 <td>{organization.notes || ""}</td>
-                <td>
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onOpenOrganization(organization.id);
-                    }}
-                  >
-                    Open
-                  </button>
-                </td>
               </tr>
             ))}
             {organizations.length === 0 && (
               <tr>
-                <td colSpan={5}>No organizations</td>
+                <td colSpan={4}>No organizations</td>
               </tr>
             )}
           </tbody>
