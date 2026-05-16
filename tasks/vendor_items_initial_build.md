@@ -175,3 +175,43 @@ The UI may be reachable from setup and from a vendor workspace, but the feature 
 - Add compact setup/admin UI with grouping/filtering.
 - Rename existing vendor workspace placeholder from products to vendor items.
 - Verify backend tests and frontend build.
+
+## Backend First-Slice Implementation Notes
+
+Files created:
+
+- `backend/app/domains/vendor_items/__init__.py`
+- `backend/app/domains/vendor_items/models.py`
+- `backend/app/domains/vendor_items/schemas.py`
+- `backend/app/domains/vendor_items/repository.py`
+- `backend/app/domains/vendor_items/service.py`
+- `backend/app/domains/vendor_items/router.py`
+- `backend/migrations/versions/20260516_0009_vendor_items.py`
+- `backend/tests/test_vendor_items_api.py`
+
+Files updated:
+
+- `backend/app/main.py`
+- `backend/migrations/env.py`
+
+Decisions made:
+
+- Backend create/update payloads use `vendor_public_id`, `category_public_id`, and `default_storage_location_public_id` externally.
+- Responses expose related public IDs and display names, never internal integer IDs.
+- `normalized_canonical_name` is generated in the service layer using the existing lowercase/alphanumeric normalization pattern.
+- `category_id` and `default_storage_location_id` are nullable.
+- New category/storage assignments require active records.
+- Existing category/storage references can remain after deactivation, but reactivation validates active references.
+- Inactive vendors cannot receive new active vendor items, and reactivation requires an active vendor.
+- `pack_size`, `case_quantity`, `last_price`, and `estimated_price` use `Numeric(12, 4)` and non-negative service/database validation.
+
+Tests run:
+
+- `backend\venv\Scripts\python.exe -m py_compile backend\app\main.py backend\migrations\env.py backend\app\domains\vendor_items\models.py backend\app\domains\vendor_items\schemas.py backend\app\domains\vendor_items\repository.py backend\app\domains\vendor_items\service.py backend\app\domains\vendor_items\router.py backend\tests\test_vendor_items_api.py`
+- From `backend/`: `venv\Scripts\python.exe -m pytest tests\test_vendor_items_api.py`
+- From `backend/`: `venv\Scripts\python.exe -m pytest tests`
+
+Open questions:
+
+- Frontend setup/admin implementation remains pending.
+- Existing vendor response still exposes `id`; vendor items intentionally do not copy that behavior.

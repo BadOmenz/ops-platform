@@ -11,6 +11,7 @@ from app.domains.item_categories import models as item_category_models
 from app.domains.organizations import models as organization_models
 from app.domains.storage_locations import models as storage_location_models
 from app.domains.tenancy import models as tenancy_models
+from app.domains.vendor_items import models as vendor_item_models
 from app.domains.vendors import models as vendor_models
 
 config = context.config
@@ -31,6 +32,7 @@ _domain_models = (
     organization_models,
     storage_location_models,
     tenancy_models,
+    vendor_item_models,
     vendor_models,
 )
 
