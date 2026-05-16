@@ -943,17 +943,18 @@ textarea::placeholder {
 .delivery-rule-form {
   display: grid;
   grid-template-columns:
-    minmax(118px, 0.8fr)
-    minmax(118px, 0.8fr)
-    minmax(96px, 0.65fr)
-    minmax(86px, 0.55fr)
-    minmax(100px, 0.7fr)
-    minmax(96px, 0.65fr)
-    minmax(96px, 0.65fr)
-    minmax(180px, 1fr)
+    minmax(145px, 0.9fr)
+    minmax(145px, 0.9fr)
+    minmax(118px, 0.7fr)
+    minmax(110px, 0.6fr)
+    minmax(130px, 0.75fr)
+    minmax(118px, 0.7fr)
+    minmax(118px, 0.7fr)
+    minmax(240px, 1.2fr)
     auto;
   gap: var(--space-2) var(--space-3);
   align-items: end;
+  min-width: 1260px;
 }
 
 .delivery-rule-form .field {
@@ -971,7 +972,7 @@ textarea::placeholder {
 }
 
 .delivery-rule-notes input {
-  min-width: 180px;
+  min-width: 240px;
 }
 
 .delivery-rule-actions {
@@ -985,7 +986,7 @@ textarea::placeholder {
 }
 
 .delivery-rules-table table {
-  min-width: 980px;
+  min-width: 1120px;
 }
 
 .delivery-rules-table strong {
@@ -1001,11 +1002,13 @@ textarea::placeholder {
   justify-items: center;
   overflow: auto;
   background: rgb(15 23 42 / 0.45);
-  padding: var(--space-7);
+  padding: var(--space-6);
 }
 
 .modal-panel {
-  width: min(1320px, 100%);
+  width: min(90vw, 1560px);
+  max-width: calc(100vw - var(--space-6) * 2);
+  min-width: min(1120px, calc(100vw - var(--space-6) * 2));
   border: 1px solid var(--section-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface-raised);
@@ -1016,6 +1019,7 @@ textarea::placeholder {
 .delivery-rules-manager {
   display: grid;
   gap: var(--space-4);
+  overflow-x: auto;
 }
 
 .vendor-items-layout {

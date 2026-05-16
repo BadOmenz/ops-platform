@@ -133,6 +133,29 @@ def test_list_vendor_delivery_rules_uses_tenant_context_and_vendor_scope() -> No
     assert fake_service.observed_status == "all"
 
 
+def test_list_vendor_delivery_rules_allows_empty_results() -> None:
+    class EmptyVendorDeliveryRuleService(FakeVendorDeliveryRuleService):
+        def list_delivery_rules(self, tenant_id: UUID, vendor_public_id: UUID, status_filter: str) -> list[dict]:
+            self.observed_tenant_id = tenant_id
+            self.observed_vendor_public_id = vendor_public_id
+            self.observed_status = status_filter
+            return []
+
+    app = create_app()
+    empty_service = EmptyVendorDeliveryRuleService()
+    app.dependency_overrides[get_vendor_delivery_rule_service] = lambda: empty_service
+    app.dependency_overrides[require_tenant_context] = fake_tenant_context
+    client = TestClient(app)
+
+    response = client.get(f"/tenants/{TENANT_ID}/vendors/{VENDOR_PUBLIC_ID}/delivery-rules")
+
+    assert response.status_code == 200
+    assert response.json() == {"data": []}
+    assert empty_service.observed_tenant_id == TENANT_ID
+    assert empty_service.observed_vendor_public_id == VENDOR_PUBLIC_ID
+    assert empty_service.observed_status == "active"
+
+
 def test_create_vendor_delivery_rule_uses_public_vendor_id() -> None:
     client = build_client()
 

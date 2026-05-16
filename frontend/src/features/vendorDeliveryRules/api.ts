@@ -12,10 +12,14 @@ export async function getVendorDeliveryRules(
   vendorPublicId: string,
   status: VendorDeliveryRuleStatusFilter,
 ): Promise<VendorDeliveryRule[]> {
+  if (!tenantId || !vendorPublicId) {
+    return [];
+  }
+
   const response = await api.get<VendorDeliveryRuleListResponse>(
     `/tenants/${tenantId}/vendors/${vendorPublicId}/delivery-rules?status=${status}`,
   );
-  return response.data.data;
+  return Array.isArray(response.data?.data) ? response.data.data : [];
 }
 
 export async function createVendorDeliveryRule(
