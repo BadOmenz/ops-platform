@@ -33,6 +33,7 @@ Storage locations are visually grouped by hardcoded storage classifications: `co
 - Favor dense rows, grouped rendering, shallow hierarchy, and alphabetical ordering.
 - Avoid dashboard-heavy ERP styling.
 - Keep setup/navigation workflows direct and utilitarian.
+- For major operational tables, follow the dual-access navigation principle in `docs/architecture/dual_access_operational_navigation.md`: support both global workspaces and contextual drill-down views.
 
 ## AI Workflow Conventions
 
